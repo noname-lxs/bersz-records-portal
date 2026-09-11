@@ -10,12 +10,12 @@
 @media(max-width:800px){.side{width:70px}.side .logo{font-size:0}.side .logo span{font-size:20px}.nav button{font-size:0;text-align:center}.nav button:first-letter{font-size:18px}.content{margin-left:70px;padding:20px}.grid{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.top{align-items:flex-start;gap:10px;flex-direction:column}}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script></head>
-<body data-html-import-id="html-import-0" data-template-id="__page-root" style="background: transparent;">
-<div id="login" class="login" data-html-import-id="html-import-1">
-  <div class="card canva-container" data-html-import-id="html-import-2" style="background: rgba(17, 17, 22, 0.94);">
+<body data-html-import-id="html-import-0" data-template-id="__page-root">
+<div id="login" class="login">
+  <div class="card" style="background: rgba(17, 17, 22, 0.94);">
     <div class="eyebrow" style="color: rgb(168, 85, 247); font-weight: 800; font-size: 11px;">BERSZ RECORDS</div>
-    <h1 class="canva-text" style="color: rgb(247, 247, 248);">Portal de lanzamientos</h1>
-    <p class="muted canva-text" style="color: rgb(155, 155, 165);">Acceso privado para artistas y administración.</p>
+    <h1 style="color: rgb(247, 247, 248);">Portal de lanzamientos</h1>
+    <p class="muted" style="color: rgb(155, 155, 165);">Acceso privado para artistas y administración.</p>
     <div id="googleLogin" style="margin-top:20px;display:flex;justify-content:center;"></div>
     <div id="loginMsg" class="notice hidden"></div>
   </div>
@@ -78,26 +78,282 @@
 </main>
 </div>
 
+<script data-html-import-id="html-import-129">
 /****************************************************
- * RENDERIZAR LISTA
+ * BERSZ RECORDS — AUTENTICACIÓN Y CONEXIÓN
  ****************************************************/
+
+const API_URL =
+  'https://script.google.com/macros/s/AKfycbwSlMa6foptS0880GvOf_9Awj6L1-nB_y7NG_ohB00JTHEGj_IRTnsQIv0cNaDQQhQSzg/exec';
+
+const GOOGLE_CLIENT_ID =
+  '1093619924656-ajhddorlqsc2ahm11bhm26kfn1etgbj1.apps.googleusercontent.com';
+
+const SESSION_KEY = 'bersz_session';
+const USER_KEY = 'bersz_user';
+
+let user = null;
+let releases = [];
+
+function el(id) {
+  return document.getElementById(id);
+}
+
+function getSessionToken() {
+  return localStorage.getItem(SESSION_KEY) || '';
+}
+
+function saveSession(token, profile) {
+  localStorage.setItem(SESSION_KEY, token);
+  localStorage.setItem(USER_KEY, JSON.stringify(profile));
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(USER_KEY);
+  user = null;
+}
+
+function showLoginMessage(message, isError = true) {
+  const box = el('loginMsg');
+  box.classList.remove('hidden');
+  box.style.color = isError ? '#ff9aa4' : '#75e89a';
+  box.textContent = message;
+}
+
+/****************************************************
+ * GOOGLE SIGN-IN
+ ****************************************************/
+
+function initGoogleSignIn() {
+  if (!window.google || !google.accounts || !google.accounts.id) {
+    showLoginMessage('No se pudo cargar el inicio de sesión de Google. Recarga la página.');
+    return;
+  }
+
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: false,
+    cancel_on_tap_outside: true
+  });
+
+  google.accounts.id.renderButton(el('googleLogin'), {
+    theme: 'filled_black',
+    size: 'large',
+    shape: 'rectangular',
+    text: 'signin_with',
+    locale: 'es'
+  });
+}
+
+async function handleGoogleCredential(response) {
+  try {
+    showLoginMessage('Verificando tu cuenta…', false);
+
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'login',
+        credential: response.credential
+      })
+    });
+
+    const result = await res.json();
+
+    if (result.status !== 'success') {
+      throw new Error(result.message || 'No tienes acceso autorizado al portal.');
+    }
+
+    const data = result.data || result;
+    const token = data.token || result.token || '';
+    const profile = data.user || result.user || {};
+
+    if (!token || !profile.role) {
+      throw new Error('El servidor no devolvió una sesión válida.');
+    }
+
+    user = {
+      role: profile.role,
+      name: profile.name || profile.email || profile.artist || 'Usuario',
+      email: profile.email || '',
+      artist: profile.artist || ''
+    };
+
+    saveSession(token, user);
+    enterPortal();
+  } catch (error) {
+    console.error('Error de inicio de sesión:', error);
+    showLoginMessage(error.message || 'No se pudo iniciar sesión.');
+  }
+}
+
+async function restoreSession() {
+  const token = getSessionToken();
+  const rawUser = localStorage.getItem(USER_KEY);
+
+  if (!token || !rawUser) return false;
+
+  try {
+    user = JSON.parse(rawUser);
+    if (!user || !user.role) throw new Error('Sesión inválida');
+
+    const response = await fetch(API_URL + '?token=' + encodeURIComponent(token));
+    const result = await response.json();
+
+    if (result.status !== 'success') throw new Error('Sesión expirada');
+
+    releases = (result.data || []).map(mapRelease);
+    enterPortal(false);
+    return true;
+  } catch (error) {
+    console.warn('No se pudo restaurar la sesión:', error);
+    clearSession();
+    return false;
+  }
+}
+
+function enterPortal(loadData = true) {
+  el('login').classList.add('hidden');
+  el('app').classList.remove('hidden');
+
+  el('newNav').classList.toggle('hidden', user.role === 'admin');
+  el('adminNav').classList.toggle('hidden', user.role !== 'admin');
+  el('artistHome').classList.toggle('hidden', user.role === 'admin');
+  el('adminHome').classList.toggle('hidden', user.role !== 'admin');
+
+  el('welcome').textContent = user.role === 'admin'
+    ? 'Panel privado de administración'
+    : 'Bienvenido, ' + (user.artist || user.name);
+
+  el('artistName').textContent = user.artist || user.name;
+  el('avatar').textContent = ((user.artist || user.name || 'A')[0]).toUpperCase();
+
+  const artistField = el('fArtist');
+  if (artistField) {
+    artistField.value = user.artist || '';
+    artistField.readOnly = user.role !== 'admin';
+  }
+
+  showView('home');
+  if (loadData) loadReleases();
+}
+
+function logout() {
+  clearSession();
+  if (window.google && google.accounts && google.accounts.id) {
+    google.accounts.id.disableAutoSelect();
+  }
+  location.reload();
+}
+
+/****************************************************
+ * LANZAMIENTOS
+ ****************************************************/
+
+function mapRelease(r) {
+  return {
+    id: r.ID_Lanzamiento || '',
+    title: r.Titulo_Cancion || '',
+    type: r.Tipo || 'Single',
+    version: r.Version || '',
+    artist: r.Artista_Principal || '',
+    real: r.Nombre_Real || '',
+    date: formatDate(r.Fecha_Lanzamiento),
+    credits: r.Colaboradores_Creditos || '',
+    wav: r.URL_WAV || '',
+    cover: r.URL_Portada || '',
+    status: r.Estado || 'Pendiente'
+  };
+}
+
+async function loadReleases() {
+  const token = getSessionToken();
+  if (!token) return;
+
+  try {
+    const response = await fetch(API_URL + '?token=' + encodeURIComponent(token));
+    const result = await response.json();
+
+    if (result.status !== 'success') {
+      throw new Error(result.message || 'Error cargando lanzamientos.');
+    }
+
+    releases = (result.data || []).map(mapRelease);
+    refresh();
+  } catch (error) {
+    console.error('Error cargando datos:', error);
+    if (/sesión|session|token|autoriz/i.test(error.message || '')) {
+      clearSession();
+      location.reload();
+      return;
+    }
+    releases = [];
+    refresh();
+  }
+}
+
+function formatDate(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (!isNaN(date.getTime())) return date.toISOString().split('T')[0];
+  return String(value).substring(0, 10);
+}
+
+function showView(id, btn) {
+  ['home', 'new', 'releases', 'admin'].forEach(x => el(x).classList.add('hidden'));
+  el(id).classList.remove('hidden');
+
+  el('pageTitle').textContent = {
+    home: 'Portal de lanzamientos',
+    new: 'Nuevo lanzamiento',
+    releases: 'Mis lanzamientos',
+    admin: 'Administración'
+  }[id];
+
+  document.querySelectorAll('.nav button').forEach(x => x.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  refresh();
+}
+
+function refresh() {
+  if (!user) return;
+
+  // El backend ya devuelve solamente los lanzamientos permitidos para el usuario.
+  const mine = user.role === 'admin'
+    ? releases
+    : releases.filter(r => String(r.artist).toLowerCase() === String(user.artist || user.name).toLowerCase());
+
+  const count = status => mine.filter(r => r.status === status).length;
+
+  el('myTotal').textContent = mine.length;
+  el('myPending').textContent = count('Pendiente');
+  el('myApproved').textContent = count('Aprobado');
+  el('myRejected').textContent = count('Rechazado');
+
+  el('allTotal').textContent = releases.length;
+  el('allPending').textContent = releases.filter(r => r.status === 'Pendiente').length;
+  el('allApproved').textContent = releases.filter(r => r.status === 'Aprobado').length;
+  el('allRejected').textContent = releases.filter(r => r.status === 'Rechazado').length;
+
+  el('artistName').textContent = user.artist || user.name;
+  el('avatar').textContent = ((user.artist || user.name || 'A')[0]).toUpperCase();
+
+  el('myList').innerHTML = renderList(mine, false) || '<div class="empty">Todavía no tienes lanzamientos.</div>';
+  el('adminList').innerHTML = renderList(releases, true) || '<div class="empty">No hay envíos todavía.</div>';
+  el('recent').innerHTML = renderList(releases.slice(-5).reverse(), false) || '<div class="empty">No hay lanzamientos.</div>';
+}
 
 function getCoverUrl(url) {
   if (!url) return '';
-
   const value = String(url).trim();
 
-  // Google Drive: convertir enlaces de archivo a una URL compatible con <img>.
   let match = value.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=view&)?id=)([a-zA-Z0-9_-]+)/);
-  if (match && match[1]) {
-    return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w800';
-  }
+  if (match && match[1]) return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w800';
 
-  // Si Apps Script devuelve un enlace que contiene /d/FILE_ID/, también lo detectamos.
   match = value.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (match && match[1]) {
-    return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w800';
-  }
+  if (match && match[1]) return 'https://drive.google.com/thumbnail?id=' + match[1] + '&sz=w800';
 
   return value;
 }
@@ -110,59 +366,32 @@ function renderList(list, admin) {
           ? `<img src="${esc(getCoverUrl(r.cover))}" class="cover" alt="Portada" loading="lazy" onerror="this.style.display='none'; this.parentElement.textContent='🖼️'">`
           : '🎵'}
       </div>
-
       <div class="release-main">
         <div class="release-title">${esc(r.title)}</div>
-
-        <div class="meta">
-          ${esc(r.artist)}
-          · ${esc(r.type)}
-          · ${esc(r.date)}
-          · ID ${esc(r.id)}
-        </div>
-
-        <div class="meta">
-          Versión: ${esc(r.version || 'Original')}
-        </div>
+        <div class="meta">${esc(r.artist)} · ${esc(r.type)} · ${esc(r.date)} · ID ${esc(r.id)}</div>
+        <div class="meta">Versión: ${esc(r.version || 'Original')}</div>
       </div>
-
-      <span class="badge ${
-        r.status === 'Aprobado'
-          ? 'approved'
-          : r.status === 'Rechazado'
-            ? 'rejected'
-            : 'pending'
-      }">
-        ${esc(r.status)}
-      </span>
-
-      ${
-        admin && r.status === 'Pendiente'
-          ? `
-            <div class="actions">
-              <button
-                class="btn secondary"
-                onclick="setStatus('${esc(r.id)}','Rechazado')">
-                Rechazar
-              </button>
-
-              <button
-                class="btn primary"
-                onclick="setStatus('${esc(r.id)}','Aprobado')">
-                Aprobar
-              </button>
-            </div>
-          `
-          : ''
-      }
+      <span class="badge ${r.status === 'Aprobado' ? 'approved' : r.status === 'Rechazado' ? 'rejected' : 'pending'}">${esc(r.status)}</span>
+      ${admin && r.status === 'Pendiente' && user && user.role === 'admin' ? `
+        <div class="actions">
+          <button class="btn secondary" onclick="setStatus('${esc(r.id)}','Rechazado')">Rechazar</button>
+          <button class="btn primary" onclick="setStatus('${esc(r.id)}','Aprobado')">Aprobar</button>
+        </div>` : ''}
     </div>
   `).join('');
 }
 
-
-/****************************************************
- * ENVIAR LANZAMIENTO A GOOGLE
- ****************************************************/
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || '');
+      resolve(result.split(',')[1] || '');
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 async function submitRelease() {
   const token = getSessionToken();
@@ -224,11 +453,11 @@ async function submitRelease() {
     const result = await response.json();
     if (result.status !== 'success') throw new Error(result.message || 'No se pudo registrar el lanzamiento.');
 
-    el('submitMsg').innerHTML = `<div class="notice success">✅ Lanzamiento enviado correctamente.<br><br>ID: <b>${esc(result.id)}</b><br>Estado: <b>🟡 Pendiente de revisión</b></div>`;
+    el('submitMsg').innerHTML = `<div class="notice success">✅ Lanzamiento enviado correctamente.<br><br>ID: <b>${esc(result.id || result.data?.id || '')}</b><br>Estado: <b>🟡 Pendiente de revisión</b></div>`;
 
     el('fTitle').value = '';
     el('fVersion').value = '';
-    el('fArtist').value = '';
+    if (user.role === 'admin') el('fArtist').value = '';
     el('fReal').value = '';
     el('fDate').value = '';
     el('fCredits').value = '';
@@ -242,10 +471,6 @@ async function submitRelease() {
     el('submitMsg').innerHTML = `<div class="notice" style="color:#ff9aa4">❌ No se pudo enviar el lanzamiento.<br><br>${esc(error.message)}</div>`;
   }
 }
-
-/****************************************************
- * APROBAR / RECHAZAR
- ****************************************************/
 
 async function setStatus(id, status) {
   const token = getSessionToken();
@@ -270,24 +495,15 @@ async function setStatus(id, status) {
   }
 }
 
-/****************************************************
- * ESCAPAR HTML
- ****************************************************/
-
 function esc(s) {
-  return String(s || '').replace(
-    /[&<>"']/g,
-    m => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    }[m])
-  );
+  return String(s || '').replace(/[&<>"']/g, m => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  }[m]));
 }
-
-
 
 window.addEventListener('load', async () => {
   initGoogleSignIn();
