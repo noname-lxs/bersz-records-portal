@@ -37,7 +37,44 @@ body:after{content:"";position:fixed;left:-16vw;top:42vh;width:64vw;height:52vh;
 @media(max-width:560px){.login{margin:8vh auto 48px}.login .card{padding:34px 22px 30px;border-radius:18px}.login .brand-mark{width:92px;height:62px}}
 
 </style>
-<script src="https://accounts.google.com/gsi/client" async defer></script></head>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style id="bersz-layout-repair">
+/* Corrective layout layer: preserves the original portal and Google authentication. */
+html, body { min-height:100%; background:#050507 !important; }
+body { margin:0 !important; color:#f7f5fb !important; overflow-x:hidden !important;
+  background-image: radial-gradient(ellipse at 12% 46%, rgba(92,20,150,.28), transparent 36%),
+    radial-gradient(ellipse at 88% 72%, rgba(76,17,126,.20), transparent 40%),
+    linear-gradient(120deg,#070609 0%,#09070d 52%,#030304 100%) !important; }
+#login.login { width:min(100% - 32px, 570px) !important; max-width:570px !important;
+  margin:clamp(48px,12vh,130px) auto 64px !important; padding:0 !important;
+  position:relative !important; }
+#login.login > .card { width:100% !important; min-width:0 !important; max-width:none !important;
+  margin:0 !important; padding:38px 42px 34px !important; text-align:center !important;
+  box-sizing:border-box !important; overflow:hidden !important; position:relative !important;
+  border:1px solid rgba(177,105,255,.42) !important; border-radius:22px !important;
+  background:linear-gradient(145deg,rgba(25,22,33,.98),rgba(9,8,13,.98) 58%,rgba(18,12,26,.98)) !important;
+  box-shadow:0 28px 85px rgba(0,0,0,.78),0 0 42px rgba(126,40,210,.18),inset 0 1px 0 rgba(255,255,255,.09) !important; }
+#login.login > .card::before { content:""; position:absolute; left:12%; right:12%; top:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(213,172,255,.95),transparent); box-shadow:0 0 18px rgba(169,85,255,.65); }
+#login .brand-mark { display:block !important; width:112px !important; height:78px !important;
+  max-width:100% !important; object-fit:contain !important; object-position:center !important;
+  margin:0 auto 18px !important; position:relative !important; z-index:1 !important; }
+#login .eyebrow { display:block !important; margin:0 auto !important; color:#c58aff !important;
+  font-size:10px !important; letter-spacing:.24em !important; text-align:center !important; }
+#login h1 { display:block !important; margin:18px 0 12px !important; color:#fff !important;
+  font-size:clamp(25px,3.5vw,34px) !important; line-height:1.2 !important; letter-spacing:-.035em !important;
+  overflow-wrap:normal !important; }
+#login p { margin:0 !important; color:#b7b0c4 !important; font-size:15px !important; line-height:1.65 !important; }
+#googleLogin { display:flex !important; justify-content:center !important; align-items:center !important;
+  width:100% !important; min-height:54px !important; margin:26px auto 0 !important; position:relative !important; z-index:2 !important; }
+#googleLogin iframe { max-width:100% !important; }
+#loginMsg { position:relative !important; z-index:2 !important; text-align:left !important; }
+@media(max-width:600px) { #login.login { width:calc(100% - 28px) !important; margin:8vh auto 40px !important; }
+  #login.login > .card { padding:30px 22px 28px !important; border-radius:18px !important; }
+  #login .brand-mark { width:92px !important; height:64px !important; }
+  #login h1 { font-size:clamp(23px,6vw,30px) !important; } }
+</style>
+</head>
 <body data-html-import-id="html-import-0" data-template-id="__page-root">
 <div id="login" class="login">
   <div class="card" style="background: rgba(17, 17, 22, 0.94);">
