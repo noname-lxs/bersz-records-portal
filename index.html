@@ -667,6 +667,381 @@ body { margin:0 !important; color:#f7f5fb !important; overflow-x:hidden !importa
   #login .brand-mark { width:92px !important; height:64px !important; }
   #login h1 { font-size:clamp(23px,6vw,30px) !important; } }
 </style>
+
+<style id="bersz-final-viewport-fix">
+/* =========================================================
+   BERSZ RECORDS — FINAL VIEWPORT / RESPONSIVE POLISH
+   Keeps the real portal logic intact; visual layer only.
+   ========================================================= */
+
+/* The login must own the entire browser viewport. */
+html, body {
+  width: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #030207 !important;
+}
+
+body {
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+
+#login.premium-login {
+  position: relative !important;
+  inset: auto !important;
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  margin: 0 !important;
+  padding: clamp(24px, 5vh, 60px) clamp(20px, 4vw, 56px) clamp(24px, 5vh, 52px) !important;
+  display: grid !important;
+  grid-template-rows: 1fr auto 1fr !important;
+  justify-items: center !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  background:
+    radial-gradient(ellipse 52% 42% at 50% 42%, rgba(91, 24, 150, .14), transparent 70%),
+    radial-gradient(ellipse 38% 46% at 12% 55%, rgba(110, 32, 190, .18), transparent 72%),
+    radial-gradient(ellipse 34% 42% at 88% 54%, rgba(86, 24, 154, .14), transparent 72%),
+    linear-gradient(180deg, #05040a 0%, #09060e 54%, #030207 100%) !important;
+}
+
+/* Deep atmospheric edge lighting. */
+#login.premium-login::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -20;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 30% 62% at 0% 52%, rgba(144, 54, 230, .22), transparent 68%),
+    radial-gradient(ellipse 27% 58% at 100% 52%, rgba(117, 39, 199, .19), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.01), transparent 24%, transparent 78%, rgba(136,64,255,.025));
+}
+
+/* Vignette + very subtle architectural texture. */
+#login.premium-login::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 24%, rgba(0,0,0,.18) 58%, rgba(0,0,0,.86) 100%),
+    repeating-linear-gradient(118deg,
+      transparent 0 150px,
+      rgba(190,120,255,.018) 151px,
+      transparent 153px);
+}
+
+/* Rebuild the side architecture so it reads as two walls,
+   not as a narrow dark vertical tunnel in the center. */
+.scene-wall {
+  width: 46vw !important;
+  top: 0 !important;
+  bottom: 12% !important;
+  opacity: .72 !important;
+  background:
+    linear-gradient(180deg,
+      rgba(15, 9, 24, .72) 0%,
+      rgba(9, 6, 14, .78) 58%,
+      rgba(3, 3, 7, .94) 100%),
+    repeating-linear-gradient(116deg,
+      transparent 0 94px,
+      rgba(162, 74, 247, .025) 95px,
+      transparent 97px) !important;
+}
+
+.scene-wall-left {
+  left: -7vw !important;
+  right: auto !important;
+  transform: skewX(-7deg) !important;
+  transform-origin: bottom left !important;
+  clip-path: polygon(0 0, 100% 0, 87% 100%, 0 100%) !important;
+  border-right: 1px solid rgba(174, 93, 255, .16) !important;
+  box-shadow:
+    inset -28px 0 70px rgba(133, 48, 218, .10),
+    20px 0 110px rgba(103, 29, 177, .08) !important;
+}
+
+.scene-wall-right {
+  right: -7vw !important;
+  left: auto !important;
+  transform: skewX(7deg) !important;
+  transform-origin: bottom right !important;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 13% 100%) !important;
+  border-left: 1px solid rgba(174, 93, 255, .16) !important;
+  box-shadow:
+    inset 28px 0 70px rgba(133, 48, 218, .09),
+    -20px 0 110px rgba(103, 29, 177, .07) !important;
+}
+
+/* LED strips should feel like environmental light, not flat CSS bars. */
+.scene-led {
+  top: 7% !important;
+  bottom: 12% !important;
+  width: 8px !important;
+  filter: blur(6px) !important;
+  opacity: .48 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg,
+      rgba(122, 43, 221, 0),
+      rgba(142, 56, 249, .24) 30%,
+      rgba(182, 94, 255, .70) 82%,
+      rgba(122, 43, 221, .16)) !important;
+  box-shadow:
+    0 0 22px rgba(148, 57, 255, .44),
+    0 0 60px rgba(116, 32, 214, .22) !important;
+}
+
+.scene-led-left { left: 6.2% !important; }
+.scene-led-right { right: 6.2% !important; }
+
+/* Full-width floor: no vertical column, subtle violet reflection. */
+.scene-floor {
+  left: -8% !important;
+  right: -8% !important;
+  top: 73% !important;
+  bottom: -26% !important;
+  background:
+    linear-gradient(180deg,
+      rgba(7, 5, 11, 0) 0%,
+      rgba(4, 3, 8, .76) 35%,
+      #020205 100%),
+    radial-gradient(ellipse at 50% 0%,
+      rgba(159, 74, 255, .12),
+      transparent 58%) !important;
+  transform: perspective(880px) rotateX(63deg) scale(1.15) !important;
+  transform-origin: center top !important;
+}
+
+.scene-floor-reflection {
+  top: 69% !important;
+  left: 12% !important;
+  right: 12% !important;
+  height: 28% !important;
+  background:
+    radial-gradient(ellipse at center top,
+      rgba(174, 91, 255, .12),
+      rgba(103, 31, 179, .035) 35%,
+      transparent 70%) !important;
+  filter: blur(26px) !important;
+  opacity: .72 !important;
+}
+
+/* The visual center stays open and deep. */
+.scene-center-glow {
+  inset: 8% 15% 17% !important;
+  background:
+    radial-gradient(ellipse at 50% 36%,
+      rgba(121, 43, 191, .075),
+      rgba(49, 12, 82, .02) 42%,
+      transparent 72%) !important;
+  filter: blur(30px) !important;
+}
+
+/* Brand is centered in the real viewport, never inside a narrow stage. */
+.premium-brand {
+  grid-row: 1 / 2 !important;
+  align-self: end !important;
+  margin: 0 0 clamp(18px, 3vh, 30px) !important;
+  z-index: 20 !important;
+}
+
+.brand-logo-wrap {
+  width: 190px !important;
+  height: 110px !important;
+}
+
+.premium-brand .brand-mark {
+  width: 168px !important;
+  height: 102px !important;
+  object-fit: contain !important;
+}
+
+/* The login card occupies a premium, controlled width. */
+.premium-card {
+  grid-row: 2 / 3 !important;
+  width: min(580px, calc(100vw - 40px)) !important;
+  max-width: 580px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 34px 42px 30px !important;
+  border-radius: 22px !important;
+  box-sizing: border-box !important;
+  z-index: 30 !important;
+}
+
+/* Make the Google area reliably fill the card without clipping. */
+#googleLogin.google-login {
+  width: 100% !important;
+  min-height: 56px !important;
+  margin-top: 26px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  overflow: visible !important;
+}
+
+#googleLogin.google-login > div {
+  max-width: 100% !important;
+}
+
+/* Bottom decorative identity. */
+.corner-top-right { z-index: 20 !important; }
+.corner-bottom-left,
+.corner-bottom-right { z-index: 20 !important; }
+
+/* Never allow the hidden dashboard to affect login layout. */
+#app.hidden {
+  display: none !important;
+}
+
+/* Tablet. */
+@media (max-width: 900px) {
+  #login.premium-login {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+
+  .scene-wall {
+    width: 52vw !important;
+  }
+
+  .premium-card {
+    width: min(580px, calc(100vw - 36px)) !important;
+    padding: 32px 34px 29px !important;
+  }
+}
+
+/* Mobile: compact, full-screen, no horizontal scroll. */
+@media (max-width: 620px) {
+  html, body {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+  }
+
+  #login.premium-login {
+    width: 100vw !important;
+    min-height: 100svh !important;
+    height: 100svh !important;
+    padding: 20px 14px 24px !important;
+    grid-template-rows: 1fr auto 1fr !important;
+  }
+
+  .scene-wall {
+    width: 62vw !important;
+    opacity: .58 !important;
+  }
+
+  .scene-led {
+    width: 6px !important;
+    opacity: .34 !important;
+  }
+
+  .scene-led-left { left: 2.5% !important; }
+  .scene-led-right { right: 2.5% !important; }
+
+  .corner-detail {
+    display: none !important;
+  }
+
+  .premium-brand {
+    align-self: end !important;
+    margin-bottom: 14px !important;
+  }
+
+  .brand-logo-wrap {
+    width: 138px !important;
+    height: 82px !important;
+  }
+
+  .premium-brand .brand-mark {
+    width: 124px !important;
+    height: 76px !important;
+  }
+
+  .brand-name {
+    font-size: 15px !important;
+    letter-spacing: .25em !important;
+    text-indent: .25em !important;
+  }
+
+  .brand-subtitle {
+    margin-top: 8px !important;
+    font-size: 9px !important;
+    letter-spacing: .30em !important;
+    text-indent: .30em !important;
+  }
+
+  .premium-card {
+    width: min(92vw, 540px) !important;
+    max-width: 540px !important;
+    padding: 28px 20px 25px !important;
+    border-radius: 18px !important;
+  }
+
+  .brand-pill {
+    padding: 7px 10px !important;
+    font-size: 8px !important;
+  }
+
+  .premium-card h1 {
+    font-size: clamp(24px, 7vw, 30px) !important;
+    margin-top: 18px !important;
+  }
+
+  .premium-card > p {
+    font-size: 13px !important;
+  }
+
+  #googleLogin.google-login {
+    min-height: 54px !important;
+    margin-top: 22px !important;
+  }
+
+  .tagline-divider {
+    margin-top: 20px !important;
+    gap: 8px !important;
+    font-size: 7px !important;
+    letter-spacing: .17em !important;
+  }
+}
+
+/* Short desktop screens. */
+@media (max-height: 760px) and (min-width: 621px) {
+  #login.premium-login {
+    padding-top: 18px !important;
+    padding-bottom: 18px !important;
+  }
+
+  .premium-brand {
+    margin-bottom: 12px !important;
+  }
+
+  .brand-logo-wrap {
+    height: 82px !important;
+  }
+
+  .premium-brand .brand-mark {
+    height: 76px !important;
+  }
+
+  .premium-card {
+    padding-top: 26px !important;
+    padding-bottom: 23px !important;
+  }
+}
+</style>
+
 </head>
 <body data-html-import-id="html-import-0" data-template-id="__page-root">
 <div id="login" class="login premium-login">
@@ -846,7 +1221,7 @@ function initGoogleSignIn() {
     size: 'large',
     shape: 'rectangular',
     text: 'signin_with',
-    width: 420,
+    width: 400,
     locale: 'es'
   });
 }
