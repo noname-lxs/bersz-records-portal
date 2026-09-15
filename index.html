@@ -1042,45 +1042,6 @@ body {
 }
 </style>
 
-
-<style id="bersz-auth-guard">
-/* =========================================================
-   BERSZ AUTHENTICATION DISPLAY GUARD
-   Prevents the dashboard from appearing before authentication
-   and guarantees that the login actually disappears after a
-   successful Google callback.
-   ========================================================= */
-
-/* The visual .premium-login rule uses !important + an ID,
-   so .hidden alone cannot override it. This rule fixes that
-   specificity conflict explicitly. */
-#login.premium-login.hidden {
-  display: none !important;
-}
-
-/* Hard gate: dashboard is invisible until the authenticated
-   body state is explicitly granted by enterPortal(). */
-body:not(.bersz-authenticated) #app {
-  display: none !important;
-  visibility: hidden !important;
-}
-
-body.bersz-authenticated #app {
-  display: flex !important;
-  visibility: visible !important;
-}
-
-body:not(.bersz-authenticated) #login.hidden {
-  display: none !important;
-}
-
-/* Never leave a stale verification/error notice visible after
-   a successful login. */
-#loginMsg.hidden {
-  display: none !important;
-}
-</style>
-
 </head>
 <body data-html-import-id="html-import-0" data-template-id="__page-root">
 <div id="login" class="login premium-login">
@@ -1229,8 +1190,6 @@ function clearSession() {
   localStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(USER_KEY);
   user = null;
-  document.body.classList.remove('bersz-authenticated');
-  el('app')?.classList.add('hidden');
 }
 
 function showLoginMessage(message, isError = true) {
@@ -1244,79 +1203,72 @@ function showLoginMessage(message, isError = true) {
  * GOOGLE SIGN-IN
  ****************************************************/
 
-let googleInitAttempts = 0;
-let googleButtonRendered = false;
-
 function initGoogleSignIn() {
-  if (googleButtonRendered) return;
-
-  if (!window.google || !window.google.accounts || !window.google.accounts.id) {
-    googleInitAttempts += 1;
-
-    if (googleInitAttempts <= 80) {
-      setTimeout(initGoogleSignIn, 100);
-    } else {
-      showLoginMessage('No se pudo cargar el inicio de sesión de Google. Recarga la página.');
-    }
+  if (!window.google || !google.accounts || !google.accounts.id) {
+    showLoginMessage('No se pudo cargar el inicio de sesión de Google. Recarga la página.');
     return;
   }
 
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: false,
+    cancel_on_tap_outside: true
+  });
+
+  google.accounts.id.renderButton(el('googleLogin'), {
+    theme: 'filled_black',
+    size: 'large',
+    shape: 'rectangular',
+    text: 'signin_with',
+    width: 400,
+    locale: 'es'
+  });
+}
+
+let loginRequestInProgress = false;
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const container = el('googleLogin');
-    if (!container) throw new Error('No se encontró el contenedor de Google.');
-
-    container.innerHTML = '';
-
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleGoogleCredential,
-      auto_select: false,
-      cancel_on_tap_outside: true
-    });
-
-    google.accounts.id.renderButton(container, {
-      theme: 'filled_black',
-      size: 'large',
-      shape: 'rectangular',
-      text: 'signin_with',
-      width: 400,
-      locale: 'es'
-    });
-
-    googleButtonRendered = true;
+    return await fetch(url, { ...options, signal: controller.signal, cache: 'no-store' });
   } catch (error) {
-    console.error('Error inicializando Google:', error);
-    showLoginMessage('No se pudo preparar el inicio de sesión de Google.');
+    if (error && error.name === 'AbortError') {
+      throw new Error('El servidor tardó demasiado en responder. Comprueba la conexión e inténtalo otra vez.');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
 async function handleGoogleCredential(response) {
+  if (loginRequestInProgress) return;
+  loginRequestInProgress = true;
   try {
-    if (!response || !response.credential) {
-      throw new Error('Google no devolvió las credenciales de inicio de sesión.');
-    }
-
     showLoginMessage('Verificando tu cuenta…', false);
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
-
-    let res;
-    try {
-      res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          action: 'login',
-          credential: response.credential
-        }),
-        signal: controller.signal
-      });
-    } finally {
-      clearTimeout(timeout);
+    if (!response || !response.credential) {
+      throw new Error('Google no devolvió una credencial. Vuelve a pulsar el botón.');
     }
 
-    const result = await res.json();
+    const res = await fetchWithTimeout(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'login',
+        credential: response.credential
+      })
+    });
+
+    if (!res.ok) throw new Error('El servidor respondió con un error HTTP (' + res.status + ').');
+    let result;
+    try {
+      result = await res.json();
+    } catch (_) {
+      throw new Error('El servidor devolvió una respuesta inválida. Contacta al administrador del portal.');
+    }
 
     if (result.status !== 'success') {
       throw new Error(result.message || 'No tienes acceso autorizado al portal.');
@@ -1341,13 +1293,9 @@ async function handleGoogleCredential(response) {
     enterPortal();
   } catch (error) {
     console.error('Error de inicio de sesión:', error);
-
-    if (error && error.name === 'AbortError') {
-      showLoginMessage('El servidor tardó demasiado en responder. Intenta iniciar sesión nuevamente.');
-      return;
-    }
-
     showLoginMessage(error.message || 'No se pudo iniciar sesión.');
+  } finally {
+    loginRequestInProgress = false;
   }
 }
 
@@ -1361,7 +1309,8 @@ async function restoreSession() {
     user = JSON.parse(rawUser);
     if (!user || !user.role) throw new Error('Sesión inválida');
 
-    const response = await fetch(API_URL + '?token=' + encodeURIComponent(token));
+    const response = await fetchWithTimeout(API_URL + '?token=' + encodeURIComponent(token), {}, 15000);
+    if (!response.ok) throw new Error('No se pudo validar la sesión.');
     const result = await response.json();
 
     if (result.status !== 'success') throw new Error('Sesión expirada');
@@ -1372,23 +1321,13 @@ async function restoreSession() {
   } catch (error) {
     console.warn('No se pudo restaurar la sesión:', error);
     clearSession();
-    el('app').classList.add('hidden');
-    el('login').classList.remove('hidden');
     return false;
   }
 }
 
 function enterPortal(loadData = true) {
-  document.body.classList.add('bersz-authenticated');
-
   el('login').classList.add('hidden');
   el('app').classList.remove('hidden');
-
-  const loginMsg = el('loginMsg');
-  if (loginMsg) {
-    loginMsg.classList.add('hidden');
-    loginMsg.textContent = '';
-  }
 
   el('newNav').classList.toggle('hidden', user.role === 'admin');
   el('adminNav').classList.toggle('hidden', user.role !== 'admin');
@@ -1677,17 +1616,15 @@ function esc(s) {
   }[m]));
 }
 
-window.addEventListener('load', async () => {
-  document.body.classList.remove('bersz-authenticated');
-  el('app').classList.add('hidden');
+window.addEventListener('load', () => {
+  // Mostrar el login inmediatamente; una sesión antigua no debe dejar la pantalla bloqueada.
   el('login').classList.remove('hidden');
-
+  el('app').classList.add('hidden');
   initGoogleSignIn();
-  const restored = await restoreSession();
-  if (!restored) {
-    el('login').classList.remove('hidden');
-    el('app').classList.add('hidden');
-  }
+  restoreSession().catch(error => {
+    console.warn('No se pudo restaurar la sesión:', error);
+    clearSession();
+  });
 });
 </script>
 </body></html>
