@@ -1042,6 +1042,13 @@ body {
 }
 </style>
 
+<style id="bersz-auth-visibility-fix">
+/* Authentication visibility gate: the app stays hidden until enterPortal() succeeds. */
+html body #app { display: none !important; }
+html body #login { display: flex !important; }
+html body.portal-authenticated #app { display: flex !important; }
+html body.portal-authenticated #login { display: none !important; }
+</style>
 </head>
 <body data-html-import-id="html-import-0" data-template-id="__page-root">
 <div id="login" class="login premium-login">
@@ -1226,34 +1233,11 @@ function initGoogleSignIn() {
   });
 }
 
-let loginRequestInProgress = false;
-
-async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal, cache: 'no-store' });
-  } catch (error) {
-    if (error && error.name === 'AbortError') {
-      throw new Error('El servidor tardó demasiado en responder. Comprueba la conexión e inténtalo otra vez.');
-    }
-    throw error;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
 async function handleGoogleCredential(response) {
-  if (loginRequestInProgress) return;
-  loginRequestInProgress = true;
   try {
     showLoginMessage('Verificando tu cuenta…', false);
 
-    if (!response || !response.credential) {
-      throw new Error('Google no devolvió una credencial. Vuelve a pulsar el botón.');
-    }
-
-    const res = await fetchWithTimeout(API_URL, {
+    const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
@@ -1262,13 +1246,7 @@ async function handleGoogleCredential(response) {
       })
     });
 
-    if (!res.ok) throw new Error('El servidor respondió con un error HTTP (' + res.status + ').');
-    let result;
-    try {
-      result = await res.json();
-    } catch (_) {
-      throw new Error('El servidor devolvió una respuesta inválida. Contacta al administrador del portal.');
-    }
+    const result = await res.json();
 
     if (result.status !== 'success') {
       throw new Error(result.message || 'No tienes acceso autorizado al portal.');
@@ -1294,8 +1272,6 @@ async function handleGoogleCredential(response) {
   } catch (error) {
     console.error('Error de inicio de sesión:', error);
     showLoginMessage(error.message || 'No se pudo iniciar sesión.');
-  } finally {
-    loginRequestInProgress = false;
   }
 }
 
@@ -1309,8 +1285,7 @@ async function restoreSession() {
     user = JSON.parse(rawUser);
     if (!user || !user.role) throw new Error('Sesión inválida');
 
-    const response = await fetchWithTimeout(API_URL + '?token=' + encodeURIComponent(token), {}, 15000);
-    if (!response.ok) throw new Error('No se pudo validar la sesión.');
+    const response = await fetch(API_URL + '?token=' + encodeURIComponent(token));
     const result = await response.json();
 
     if (result.status !== 'success') throw new Error('Sesión expirada');
@@ -1326,6 +1301,7 @@ async function restoreSession() {
 }
 
 function enterPortal(loadData = true) {
+  document.body.classList.add('portal-authenticated');
   el('login').classList.add('hidden');
   el('app').classList.remove('hidden');
 
@@ -1616,15 +1592,16 @@ function esc(s) {
   }[m]));
 }
 
-window.addEventListener('load', () => {
-  // Mostrar el login inmediatamente; una sesión antigua no debe dejar la pantalla bloqueada.
-  el('login').classList.remove('hidden');
+window.addEventListener('load', async () => {
+  document.body.classList.remove('portal-authenticated');
   el('app').classList.add('hidden');
+  el('login').classList.remove('hidden');
   initGoogleSignIn();
-  restoreSession().catch(error => {
-    console.warn('No se pudo restaurar la sesión:', error);
-    clearSession();
-  });
+  const restored = await restoreSession();
+  if (!restored) {
+    el('login').classList.remove('hidden');
+    el('app').classList.add('hidden');
+  }
 });
 </script>
 </body></html>
