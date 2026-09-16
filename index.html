@@ -1043,11 +1043,15 @@ body {
 </style>
 
 <style id="bersz-auth-visibility-fix">
-/* Authentication visibility gate: the app stays hidden until enterPortal() succeeds. */
+/* Authentication visibility gate.
+   Login is visible only while unauthenticated.
+   Dashboard is invisible until the app explicitly enters an authenticated state. */
 html body #app { display: none !important; }
 html body #login { display: flex !important; }
+html body #login.hidden { display: none !important; }
 html body.portal-authenticated #app { display: flex !important; }
 html body.portal-authenticated #login { display: none !important; }
+html body.portal-authenticated #login.hidden { display: none !important; }
 </style>
 </head>
 <body data-html-import-id="html-import-0" data-template-id="__page-root">
@@ -1210,8 +1214,12 @@ function showLoginMessage(message, isError = true) {
  * GOOGLE SIGN-IN
  ****************************************************/
 
-function initGoogleSignIn() {
+function initGoogleSignIn(retry = 0) {
   if (!window.google || !google.accounts || !google.accounts.id) {
+    if (retry < 20) {
+      setTimeout(() => initGoogleSignIn(retry + 1), 300);
+      return;
+    }
     showLoginMessage('No se pudo cargar el inicio de sesión de Google. Recarga la página.');
     return;
   }
@@ -1237,14 +1245,23 @@ async function handleGoogleCredential(response) {
   try {
     showLoginMessage('Verificando tu cuenta…', false);
 
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        action: 'login',
-        credential: response.credential
-      })
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    let res;
+    try {
+      res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'login',
+          credential: response.credential
+        }),
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     const result = await res.json();
 
@@ -1268,10 +1285,18 @@ async function handleGoogleCredential(response) {
     };
 
     saveSession(token, user);
+    const loginMsg = el('loginMsg');
+    if (loginMsg) {
+      loginMsg.classList.add('hidden');
+      loginMsg.textContent = '';
+    }
     enterPortal();
   } catch (error) {
     console.error('Error de inicio de sesión:', error);
-    showLoginMessage(error.message || 'No se pudo iniciar sesión.');
+    const message = error.name === 'AbortError'
+      ? 'La verificación tardó demasiado. Comprueba tu conexión e inténtalo de nuevo.'
+      : (error.message || 'No se pudo iniciar sesión.');
+    showLoginMessage(message);
   }
 }
 
