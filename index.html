@@ -244,7 +244,76 @@
     .upload-box { padding:14px; border:1px dashed rgba(180,92,255,.35); border-radius:12px; background:rgba(139,61,255,.04); }
     .upload-box input[type=file] { width:100%; color:var(--text-muted); font-size:12px; }
     .artist-only-home-note { display:none; }
-    @media(max-width:760px){ #releaseSubmitForm{grid-template-columns:1fr !important;} }
+    /* ===== INFORMACIÓN DEL LANZAMIENTO — FIDELIDAD A REFERENCIA ===== */
+    .release-submit-page{display:flex;flex-direction:column;gap:12px;}
+    .release-submit-progress{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:2px;}
+    .release-step{display:flex;align-items:center;gap:10px;min-height:54px;padding:8px 12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(12,10,18,.82);transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;}
+    .release-step.active{border-color:rgba(139,61,255,.68);background:linear-gradient(135deg,rgba(139,61,255,.23),rgba(66,24,112,.16));box-shadow:0 0 18px rgba(139,61,255,.15);}
+    .release-step-number{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.08);font-size:12px;font-weight:800;color:#fff;flex:none;}
+    .release-step.active .release-step-number{background:linear-gradient(135deg,#8B3DFF,#6A14D1);box-shadow:0 0 16px rgba(139,61,255,.42);}
+    .release-step strong{display:block;color:#fff;font-size:12px;line-height:1.15;}
+    .release-step small{display:block;color:#8F8A9B;font-size:10px;line-height:1.3;margin-top:2px;}
+    .release-info-card{background:linear-gradient(180deg,rgba(12,11,18,.96),rgba(8,8,13,.98));border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:18px 18px 16px;box-shadow:0 16px 35px rgba(0,0,0,.25);}
+    .release-info-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;}
+    .release-info-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:18px;color:#fff;background:linear-gradient(135deg,#6C27D9,#9D4DFF);box-shadow:0 0 18px rgba(139,61,255,.24);flex:none;}
+    .release-info-head h2{margin:0;color:#fff;font-size:18px;font-weight:800;letter-spacing:-.02em;}
+    .release-info-head p{margin:3px 0 0;color:#8F8A9B;font-size:11px;}
+    .release-primary-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 16px;}
+    .release-field{min-width:0;}
+    .release-field-full{grid-column:1/-1;}
+    .release-field label,.release-section-title{display:block;margin-bottom:7px;color:#D9D4E2;font-size:11px;font-weight:800;letter-spacing:.01em;}
+    .release-field label span{color:#fff;}
+    .release-control{width:100%;height:38px;padding:0 12px;border:1px solid rgba(255,255,255,.11);border-radius:9px;background:#0D0C14;color:#F7F4FB;font:600 12px/1.1 inherit;outline:none;transition:border-color .18s ease,box-shadow .18s ease,background .18s ease,transform .18s ease;}
+    .release-control::placeholder{color:#7E7989;}
+    .release-control:hover{border-color:rgba(255,255,255,.17);}
+    .release-control:focus{border-color:#9C59FF;box-shadow:0 0 0 3px rgba(139,61,255,.13),0 0 16px rgba(139,61,255,.14);background:#0F0D18;}
+    .release-control:invalid:not(:placeholder-shown){border-color:rgba(255,100,112,.45);}
+    .release-divider{height:1px;background:rgba(255,255,255,.08);margin:18px 0;}
+    .release-collab-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,.5fr);gap:18px;align-items:start;}
+    .release-helper{margin:-2px 0 11px;color:#8F8A9B;font-size:10px;}
+    .release-yesno{display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,.12);border-radius:9px;overflow:hidden;background:#0C0B13;}
+    .release-segment,.release-explicit-segment{min-width:64px;height:34px;border:0;background:transparent;color:#E8E5EC;font:700 11px/1 inherit;cursor:pointer;transition:background .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease;}
+    .release-segment:hover,.release-explicit-segment:hover{background:rgba(255,255,255,.05);}
+    .release-segment.active,.release-explicit-segment.active{background:linear-gradient(135deg,#8B3DFF,#6A14D1);color:#fff;box-shadow:0 0 16px rgba(139,61,255,.28);}
+    .release-segment:active,.release-explicit-segment:active{transform:scale(.97);}
+    .release-collab-panel{max-height:0;overflow:hidden;opacity:0;transform:translateY(-4px);transition:max-height .22s ease,opacity .2s ease,transform .22s ease;margin-top:12px;}
+    .release-collab-panel.is-open{max-height:520px;opacity:1;transform:translateY(0);}
+    .release-artist-row{display:grid;grid-template-columns:minmax(0,1fr) 34px;gap:8px;align-items:end;margin-top:9px;animation:releaseRowIn .2s ease both;}
+    @keyframes releaseRowIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+    .release-artist-remove{height:34px;border:1px solid rgba(255,92,138,.22);border-radius:8px;background:rgba(255,92,138,.05);color:#FF86AE;display:grid;place-items:center;cursor:pointer;transition:all .18s ease;}
+    .release-artist-remove:hover{background:rgba(255,92,138,.11);border-color:rgba(255,92,138,.4);transform:translateY(-1px);}
+    .release-collab-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:11px;}
+    .release-add-btn{height:34px;padding:0 12px;border:1px solid rgba(139,61,255,.48);border-radius:8px;background:rgba(139,61,255,.08);color:#E9DEFF;font:700 11px/1 inherit;cursor:pointer;transition:all .18s ease;}
+    .release-add-btn:hover{background:rgba(139,61,255,.15);border-color:rgba(180,92,255,.72);box-shadow:0 0 12px rgba(139,61,255,.18);}
+    .release-add-btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;}
+    .release-count{color:#7F7A8B;font-size:10px;}
+    .release-collab-side{display:flex;flex-direction:column;gap:16px;padding-left:16px;border-left:1px solid rgba(255,255,255,.08);}
+    .release-explicit-field{padding-top:1px;}
+    .release-version-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 22px;margin-top:3px;}
+    .release-version-column{border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden;background:rgba(255,255,255,.01);}
+    .release-toggle-row{position:relative;min-height:38px;display:grid;grid-template-columns:25px minmax(0,1fr) 36px;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid rgba(255,255,255,.07);color:#E7E4EA;font-size:11px;cursor:pointer;transition:background .18s ease,color .18s ease;}
+    .release-toggle-row:last-child{border-bottom:0;}
+    .release-toggle-row:hover{background:rgba(139,61,255,.04);}
+    .release-toggle-icon{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:rgba(255,255,255,.07);font-size:11px;color:#D8C0FF;}
+    .release-toggle-row input{position:absolute;opacity:0;pointer-events:none;}
+    .release-switch{justify-self:end;width:34px;height:19px;border-radius:999px;background:#282633;border:1px solid rgba(255,255,255,.13);padding:2px;display:flex;align-items:center;transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;}
+    .release-switch span{width:13px;height:13px;border-radius:50%;background:#F1EFF6;box-shadow:0 1px 4px rgba(0,0,0,.4);transition:transform .2s ease,background .2s ease;}
+    .release-toggle-row:has(input:checked) .release-switch{background:linear-gradient(90deg,#7E21FF,#B45CFF);border-color:rgba(180,92,255,.72);box-shadow:0 0 10px rgba(139,61,255,.24);}
+    .release-toggle-row:has(input:checked) .release-switch span{transform:translateX(15px);background:#fff;}
+    .release-toggle-row:has(input:checked){color:#fff;background:rgba(139,61,255,.035);}
+    .release-submit-message{min-height:0;margin-top:10px;}
+    .release-form-footer{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:10px;}
+    .release-cancel-btn,.release-continue-btn{height:38px;border-radius:9px;padding:0 16px;font:800 11px/1 inherit;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease;}
+    .release-cancel-btn{border:1px solid rgba(255,255,255,.12);background:#0D0C14;color:#E6E2EB;}
+    .release-cancel-btn:hover{background:#11101A;border-color:rgba(255,255,255,.18);}
+    .release-continue-btn{border:1px solid rgba(180,92,255,.75);background:linear-gradient(135deg,#7E21FF,#9D42FF);color:#fff;min-width:156px;box-shadow:0 8px 22px rgba(126,33,255,.26);}
+    .release-continue-btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(126,33,255,.35);}
+    .release-continue-btn:active,.release-cancel-btn:active{transform:translateY(0) scale(.98);}
+    .release-continue-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none;}
+    @media(max-width:980px){.release-submit-progress{grid-template-columns:repeat(2,minmax(0,1fr));}.release-collab-grid{grid-template-columns:1fr}.release-collab-side{padding-left:0;border-left:0;padding-top:2px}.release-version-grid{gap:10px 12px;}}
+    @media(max-width:700px){.release-primary-fields{grid-template-columns:1fr}.release-field-full{grid-column:auto}.release-submit-progress{grid-template-columns:1fr 1fr}.release-info-card{padding:15px}.release-version-grid{grid-template-columns:1fr}.release-form-footer{justify-content:stretch}.release-cancel-btn,.release-continue-btn{flex:1;}.release-step{padding:8px}.release-step small{display:none;}}
+    @media(max-width:440px){.release-submit-progress{grid-template-columns:1fr}.release-step{min-height:46px}.release-collab-actions{align-items:stretch;flex-direction:column}.release-add-btn,.release-count{width:100%;text-align:left}.release-count{padding-left:2px;}}
+
     /* ===== ADMIN PORTAL ===== */
     #app {
       display: none;
@@ -1838,24 +1907,130 @@
 
       <!-- VISTA: ENVIAR MÚSICA -->
       <section class="view-panel" id="view-new">
-        <div class="card-panel">
-          <div class="card-head">
-            <div><h2>Enviar música a Bersz Records</h2><p>Completa los datos del lanzamiento y adjunta el master WAV y la portada.</p></div>
-            <span class="badge" style="background:rgba(139,61,255,.18);color:var(--purple-light);">Envío seguro</span>
+        <div class="release-submit-page">
+          <div class="release-submit-progress" aria-label="Progreso del envío">
+            <div class="release-step active"><span class="release-step-number">1</span><div><strong>Información</strong><small>Datos del lanzamiento</small></div></div>
+            <div class="release-step"><span class="release-step-number">2</span><div><strong>Archivos</strong><small>Master y portada</small></div></div>
+            <div class="release-step"><span class="release-step-number">3</span><div><strong>Revisión</strong><small>Verifica la información</small></div></div>
+            <div class="release-step"><span class="release-step-number">4</span><div><strong>Enviar</strong><small>Publica tu lanzamiento</small></div></div>
           </div>
-          <form id="releaseSubmitForm" onsubmit="event.preventDefault(); submitRelease();" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">
-            <div><label class="form-label">Título *</label><input id="fTitle" class="search-input" style="width:100%;" required></div>
-            <div><label class="form-label">Artista *</label><input id="fArtist" class="search-input" style="width:100%;" required></div>
-            <div><label class="form-label">Nombre real *</label><input id="fReal" class="search-input" style="width:100%;" required></div>
-            <div><label class="form-label">Fecha de lanzamiento *</label><input id="fDate" type="date" class="search-input" style="width:100%;" required></div>
-            <div><label class="form-label">Tipo</label><select id="fType" class="search-input" style="width:100%;"><option>Single</option><option>EP</option><option>Álbum</option></select></div>
-            <div><label class="form-label">Versión</label><input id="fVersion" class="search-input" style="width:100%;" placeholder="Original, Remix, Slowed..."></div>
-            <div style="grid-column:1/-1;"><label class="form-label">Colaboradores / créditos</label><input id="fCredits" class="search-input" style="width:100%;" placeholder="MC, productor, compositor, etc."></div>
-            <div class="upload-box"><label class="form-label">Master WAV *</label><input id="fWav" type="file" accept=".wav,audio/wav" required></div>
-            <div class="upload-box"><label class="form-label">Portada *</label><input id="fCover" type="file" accept="image/png,image/jpeg,image/webp" required></div>
-            <label style="grid-column:1/-1;display:flex;gap:8px;align-items:center;color:var(--text-muted);font-size:12px;"><input id="fAccept" type="checkbox" required> Acepto los términos y condiciones del envío.</label>
-            <div id="submitMsg" style="grid-column:1/-1;"></div>
-            <div style="grid-column:1/-1;display:flex;justify-content:flex-end;"><button class="btn btn-primary" type="submit">Enviar lanzamiento</button></div>
+
+          <form id="releaseSubmitForm" onsubmit="event.preventDefault(); submitRelease();" novalidate>
+            <div class="release-info-card">
+              <div class="release-info-head">
+                <div class="release-info-icon" aria-hidden="true">♫</div>
+                <div><h2>Información del lanzamiento</h2><p>Completa la información básica de tu release.</p></div>
+              </div>
+
+              <div class="release-primary-fields">
+                <div class="release-field release-field-full">
+                  <label for="fTitle">TÍTULO DEL LANZAMIENTO <span>*</span></label>
+                  <input id="fTitle" class="release-control" type="text" placeholder="Ritmada Selectiva" required>
+                </div>
+                <div class="release-field">
+                  <label for="fArtist">ARTISTA PRINCIPAL <span>*</span></label>
+                  <input id="fArtist" class="release-control" type="text" placeholder="DJ ALX K23" required>
+                </div>
+                <div class="release-field">
+                  <label for="fDate">FECHA DE LANZAMIENTO <span>*</span></label>
+                  <input id="fDate" class="release-control" type="date" required>
+                </div>
+                <div class="release-field">
+                  <label for="fType">TIPO DE LANZAMIENTO <span>*</span></label>
+                  <select id="fType" class="release-control" required>
+                    <option value="Single">Single</option>
+                    <option value="EP">EP</option>
+                    <option value="Álbum">Álbum</option>
+                    <option value="Mixtape">Mixtape</option>
+                  </select>
+                </div>
+                <div class="release-field">
+                  <label for="fGenre">GÉNERO PRINCIPAL <span>*</span></label>
+                  <select id="fGenre" class="release-control" required>
+                    <option value="Brazilian Funk">Brazilian Funk</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="release-divider"></div>
+
+              <div class="release-collab-grid">
+                <div class="release-collab-main">
+                  <div class="release-section-title">ARTISTAS INVITADOS / FEATURING</div>
+                  <div class="release-helper">¿Hay más de un artista en este lanzamiento?</div>
+                  <div class="release-yesno" role="group" aria-label="Artistas invitados">
+                    <button type="button" class="release-segment" data-value="yes" aria-pressed="false">Sí</button>
+                    <button type="button" class="release-segment active" data-value="no" aria-pressed="true">No</button>
+                  </div>
+
+                  <div id="releaseCollaboratorsPanel" class="release-collab-panel" aria-hidden="true">
+                    <div id="releaseArtistsList"></div>
+                    <div class="release-collab-actions">
+                      <button id="addReleaseArtist" type="button" class="release-add-btn">＋ Agregar otro artista</button>
+                      <span id="releaseArtistsCount" class="release-count">Máximo 5 artistas invitados (0/5)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="release-collab-side">
+                  <div class="release-field">
+                    <label for="fCollabType">TIPO DE COLABORACIÓN</label>
+                    <select id="fCollabType" class="release-control">
+                      <option value="Featuring">Featuring</option>
+                      <option value="&amp;">&amp;</option>
+                      <option value="With">With</option>
+                      <option value="Remix">Remix</option>
+                      <option value="Vs.">Vs.</option>
+                    </select>
+                  </div>
+
+                  <div class="release-field release-explicit-field">
+                    <label>CONTENIDO EXPLÍCITO <span>*</span></label>
+                    <div class="release-yesno" role="group" aria-label="Contenido explícito">
+                      <button type="button" class="release-explicit-segment" data-value="yes" aria-pressed="false">Sí</button>
+                      <button type="button" class="release-explicit-segment active" data-value="no" aria-pressed="true">No</button>
+                    </div>
+                    <input id="fExplicit" type="hidden" value="No" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="release-divider"></div>
+
+              <div class="release-field">
+                <div class="release-section-title">VERSIÓN DEL LANZAMIENTO</div>
+                <div class="release-helper">Selecciona todas las versiones que tendrá este lanzamiento. Puedes activar varias.</div>
+              </div>
+
+              <div class="release-version-grid" id="releaseVersionGrid">
+                <div class="release-version-column">
+                  <label class="release-toggle-row"><span class="release-toggle-icon">♫</span><span>Original</span><input type="checkbox" data-release-version="Original" checked><span class="release-switch"><span></span></span></label>
+                  <label class="release-toggle-row"><span class="release-toggle-icon">♫</span><span>Slowed</span><input type="checkbox" data-release-version="Slowed"><span class="release-switch"><span></span></span></label>
+                  <label class="release-toggle-row"><span class="release-toggle-icon">◷</span><span>Super Slowed</span><input type="checkbox" data-release-version="Super Slowed"><span class="release-switch"><span></span></span></label>
+                  <label class="release-toggle-row"><span class="release-toggle-icon">✣</span><span>Sped Up</span><input type="checkbox" data-release-version="Sped Up"><span class="release-switch"><span></span></span></label>
+                </div>
+                <div class="release-version-column">
+                  <label class="release-toggle-row"><span class="release-toggle-icon">✣</span><span>Super Sped Up</span><input type="checkbox" data-release-version="Super Sped Up"><span class="release-switch"><span></span></span></label>
+                  <label class="release-toggle-row"><span class="release-toggle-icon">◷</span><span>Ultra Slowed</span><input type="checkbox" data-release-version="Ultra Slowed"><span class="release-switch"><span></span></span></label>
+                  <label class="release-toggle-row"><span class="release-toggle-icon">✣</span><span>Instrumental</span><input type="checkbox" data-release-version="Instrumental"><span class="release-switch"><span></span></span></label>
+                  <label class="release-toggle-row"><span class="release-toggle-icon">✣</span><span>No Kick</span><input type="checkbox" data-release-version="No Kick"><span class="release-switch"><span></span></span></label>
+                </div>
+              </div>
+
+              <input id="fReal" type="hidden" value="">
+              <input id="fCredits" type="hidden" value="">
+              <input id="fVersion" type="hidden" value="Original">
+              <input id="fGenreHidden" type="hidden" value="Brazilian Funk">
+              <input id="fWav" type="file" accept=".wav,audio/wav" hidden>
+              <input id="fCover" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+              <input id="fAccept" type="checkbox" hidden checked>
+              <div id="submitMsg" class="release-submit-message"></div>
+            </div>
+
+            <div class="release-form-footer">
+              <button class="release-cancel-btn" type="button" onclick="navigateTo('releases')">Cancelar</button>
+              <button id="releaseContinueBtn" class="release-continue-btn" type="submit">Guardar y continuar <span>→</span></button>
+            </div>
           </form>
         </div>
       </section>
@@ -3623,34 +3798,137 @@
       return new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=()=>resolve(String(reader.result||'').split(',')[1]||''); reader.onerror=reject; reader.readAsDataURL(file); });
     }
 
+    let releaseInvitedArtists = [];
+    const RELEASE_MAX_INVITED = 5;
+    const RELEASE_ARTIST_FALLBACKS = ['MC GW','DJ L21','Bonaizznt','Yung Exu','DJ KAIQUE','DJ FAMEXY','DJ VALUCHI 22','refice'];
+
+    function getReleaseArtistOptions(){
+      const fromCatalog = releases.map(r=>String(r.artist||'').trim()).filter(Boolean);
+      const fromCurrentUser = [user?.artist,user?.name].map(v=>String(v||'').trim()).filter(Boolean);
+      return [...new Set([...fromCatalog,...fromCurrentUser,...RELEASE_ARTIST_FALLBACKS])];
+    }
+
+    function setupReleaseInformationUI() {
+      const form=document.getElementById('releaseSubmitForm');
+      if(!form) return;
+      const date=document.getElementById('fDate');
+      if(date && !date.value) date.value='2026-09-26';
+      const collabButtons=document.querySelectorAll('.release-segment');
+      const collabPanel=document.getElementById('releaseCollaboratorsPanel');
+      const collabType=document.getElementById('fCollabType');
+      const explicitInput=document.getElementById('fExplicit');
+      const artistList=document.getElementById('releaseArtistsList');
+      const count=document.getElementById('releaseArtistsCount');
+      const addBtn=document.getElementById('addReleaseArtist');
+      const explicitButtons=document.querySelectorAll('.release-explicit-segment');
+      const versions=[...document.querySelectorAll('[data-release-version]')];
+
+      function syncCollabUI(open){
+        collabPanel?.classList.toggle('is-open',open);
+        collabPanel?.setAttribute('aria-hidden',String(!open));
+        if(collabType){collabType.disabled=!open;}
+        if(!open){releaseInvitedArtists=[]; renderReleaseInvitedArtists();}
+        if(open && releaseInvitedArtists.length===0){releaseInvitedArtists=['']; renderReleaseInvitedArtists();}
+      }
+      function renderReleaseInvitedArtists(){
+        if(!artistList) return;
+        artistList.innerHTML=releaseInvitedArtists.map((artist,index)=>`
+          <div class="release-artist-row" data-index="${index}">
+            <div class="release-field">
+              <label for="releaseGuest_${index}">ARTISTA INVITADO ${index+1} <span>*</span></label>
+              <select id="releaseGuest_${index}" class="release-control release-guest-select" data-guest-index="${index}" required>
+                <option value="">Seleccionar artista</option>
+                ${getReleaseArtistOptions().map(a=>`<option value="${esc(a)}" ${artist===a?'selected':''}>${esc(a)}</option>`).join('')}
+              </select>
+            </div>
+            ${index>0?`<button type="button" class="release-artist-remove" data-remove-index="${index}" aria-label="Eliminar artista invitado">🗑</button>`:'<span></span>'}
+          </div>`).join('');
+        artistList.querySelectorAll('.release-guest-select').forEach(sel=>sel.addEventListener('change',e=>{
+          const i=Number(e.currentTarget.dataset.guestIndex); releaseInvitedArtists[i]=e.currentTarget.value;
+        }));
+        artistList.querySelectorAll('[data-remove-index]').forEach(btn=>btn.addEventListener('click',e=>{
+          const i=Number(e.currentTarget.dataset.removeIndex); releaseInvitedArtists.splice(i,1); renderReleaseInvitedArtists();
+        }));
+        if(count) count.textContent=`Máximo 5 artistas invitados (${releaseInvitedArtists.length}/5)`;
+        if(addBtn){addBtn.disabled=releaseInvitedArtists.length>=RELEASE_MAX_INVITED;}
+      }
+      function setExplicit(value){
+        if(explicitInput) explicitInput.value=value==='yes'?'Sí':'No';
+        explicitButtons.forEach(btn=>{const active=btn.dataset.value===value;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active));});
+      }
+      collabButtons.forEach(btn=>btn.addEventListener('click',()=>{
+        const value=btn.dataset.value; const open=value==='yes';
+        collabButtons.forEach(b=>{const active=b===btn;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
+        syncCollabUI(open);
+      }));
+      explicitButtons.forEach(btn=>btn.addEventListener('click',()=>setExplicit(btn.dataset.value)));
+      addBtn?.addEventListener('click',()=>{
+        if(releaseInvitedArtists.length>=RELEASE_MAX_INVITED)return;
+        releaseInvitedArtists.push(''); renderReleaseInvitedArtists();
+      });
+      versions.forEach(input=>input.addEventListener('change',()=>syncReleaseVersionField()));
+      setExplicit('no'); syncCollabUI(false); syncReleaseVersionField(); renderReleaseInvitedArtists();
+
+      function syncReleaseVersionField(){
+        const selected=versions.filter(i=>i.checked).map(i=>i.dataset.releaseVersion);
+        const versionField=document.getElementById('fVersion'); if(versionField) versionField.value=selected.join(', ');
+      }
+    }
+
+    function validateReleaseInformation(){
+      const title=document.getElementById('fTitle')?.value.trim();
+      const artist=document.getElementById('fArtist')?.value.trim();
+      const real=document.getElementById('fReal')?.value.trim();
+      const date=document.getElementById('fDate')?.value;
+      const type=document.getElementById('fType')?.value;
+      const genre=document.getElementById('fGenre')?.value;
+      const explicit=document.getElementById('fExplicit')?.value;
+      const wantsGuests=document.querySelector('.release-segment.active')?.dataset.value==='yes';
+      if(!title||!artist||!real||!date||!type||!genre||!explicit) return 'Completa los campos obligatorios antes de continuar.';
+      if(wantsGuests && (!releaseInvitedArtists.length || releaseInvitedArtists.some(a=>!a))) return 'Selecciona al menos un artista invitado y completa todos los campos de artistas.';
+      const selectedVersions=[...document.querySelectorAll('[data-release-version]:checked')];
+      if(!selectedVersions.length) return 'Selecciona al menos una versión del lanzamiento.';
+      return '';
+    }
+
     async function submitRelease() {
       const token=localStorage.getItem(SESSION_KEY);
       if(!token || !user){ showToast('Tu sesión ha expirado.'); return logout(); }
+      const validation=validateReleaseInformation();
+      const msg=document.getElementById('submitMsg');
+      if(validation){if(msg)msg.innerHTML=`<div class="toast">${esc(validation)}</div>`;return;}
       const title=document.getElementById('fTitle')?.value.trim();
       const artist=document.getElementById('fArtist')?.value.trim();
       const real=document.getElementById('fReal')?.value.trim();
       const date=document.getElementById('fDate')?.value;
       const type=document.getElementById('fType')?.value || 'Single';
-      const version=document.getElementById('fVersion')?.value.trim();
+      const version=document.getElementById('fVersion')?.value.trim() || 'Original';
       const credits=document.getElementById('fCredits')?.value.trim();
+      const genre=document.getElementById('fGenre')?.value || 'Brazilian Funk';
+      const explicit=document.getElementById('fExplicit')?.value || 'No';
       const wav=document.getElementById('fWav')?.files?.[0];
       const cover=document.getElementById('fCover')?.files?.[0];
       const accepted=document.getElementById('fAccept')?.checked;
-      const msg=document.getElementById('submitMsg');
-      if(!title || !real || !date || !wav || !cover || !accepted){ msg.innerHTML='<div class="toast">Completa los campos obligatorios, archivos y aceptación.</div>'; return; }
-      if(!/\.wav$/i.test(wav.name)){ msg.innerHTML='<div class="toast">El master debe estar en formato WAV.</div>'; return; }
-      msg.innerHTML='<div class="toast">Subiendo lanzamiento…</div>';
+      if(!title || !real || !date || !accepted){ if(msg)msg.innerHTML='<div class="toast">Completa los campos obligatorios.</div>'; return; }
+      if(!wav || !cover){ if(msg)msg.innerHTML='<div class="toast">Para enviar el release, adjunta el master WAV y la portada.</div>'; return; }
+      if(!/\.wav$/i.test(wav.name)){ if(msg)msg.innerHTML='<div class="toast">El master debe estar en formato WAV.</div>'; return; }
+      if(msg) msg.innerHTML='<div class="toast">Subiendo lanzamiento…</div>';
+      const btn=document.getElementById('releaseContinueBtn'); if(btn){btn.disabled=true;btn.dataset.defaultLabel=btn.textContent;btn.textContent='Guardando…';}
       try{
-        const payload={action:'submit',token,title,type,version,artist: user.role==='admin' ? artist : (user.artist||user.name),real,date,credits,wavFile:await fileToBase64(wav),wavName:wav.name,coverFile:await fileToBase64(cover),coverName:cover.name,coverMime:cover.type||'image/jpeg'};
+        const payload={action:'submit',token,title,type,version,artist:user.role==='admin'?artist:(user.artist||user.name),real,date,credits,genre,explicit,invitedArtists:releaseInvitedArtists,collaborationType:document.getElementById('fCollabType')?.value||'Featuring',wavFile:await fileToBase64(wav),wavName:wav.name,coverFile:await fileToBase64(cover),coverName:cover.name,coverMime:cover.type||'image/jpeg'};
         const response=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
         const result=await response.json();
         if(result.status!=='success') throw new Error(result.message||'No se pudo registrar el lanzamiento.');
-        msg.innerHTML=`<div class="toast" style="border-color:rgba(34,197,94,.4);">✓ Lanzamiento enviado. ID: <b>${esc(result.id||result.data?.id||'')}</b><br>Estado: Pendiente de revisión.</div>`;
+        if(msg)msg.innerHTML=`<div class="toast" style="border-color:rgba(34,197,94,.4);">✓ Lanzamiento enviado. ID: <b>${esc(result.id||result.data?.id||'')}</b><br>Estado: Pendiente de revisión.</div>`;
         document.getElementById('releaseSubmitForm')?.reset();
-        if(user.role!=='admin'){ const f=document.getElementById('fArtist'); if(f) f.value=user.artist||user.name||''; }
+        releaseInvitedArtists=[];
+        setupReleaseInformationUI();
+        if(user.role!=='admin'){const f=document.getElementById('fArtist');if(f)f.value=user.artist||user.name||'';}
         await loadReleases();
-      }catch(e){ msg.innerHTML=`<div class="toast" style="border-color:rgba(239,68,68,.4);">No se pudo enviar: ${esc(e.message)}</div>`; }
+      }catch(e){ if(msg)msg.innerHTML=`<div class="toast" style="border-color:rgba(239,68,68,.4);">No se pudo enviar: ${esc(e.message)}</div>`; }
+      finally{if(btn){btn.disabled=false;btn.textContent='Guardar y continuar →';}}
     }
+
 
     function renderTables() {
       // Home Table
@@ -4197,6 +4475,7 @@
     // INICIALIZACIÓN
     document.addEventListener('DOMContentLoaded', () => {
       // Event listeners para botones y navegación
+      setupReleaseInformationUI();
       document.getElementById('btnLogout').addEventListener('click', logout);
       document.getElementById('btnHamburger').addEventListener('click', () => {
         document.getElementById('sidebar').classList.toggle('open');
