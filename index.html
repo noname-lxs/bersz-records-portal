@@ -244,16 +244,19 @@
     .upload-box { padding:14px; border:1px dashed rgba(180,92,255,.35); border-radius:12px; background:rgba(139,61,255,.04); }
     .upload-box input[type=file] { width:100%; color:var(--text-muted); font-size:12px; }
     .artist-only-home-note { display:none; }
-    /* ===== INFORMACIÓN DEL LANZAMIENTO — FIDELIDAD A REFERENCIA ===== */
+    /* ===== ENVIAR MÚSICA / FLUJO DE LANZAMIENTO ===== */
     .release-submit-page{display:flex;flex-direction:column;gap:12px;}
     .release-submit-progress{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:2px;}
-    .release-step{display:flex;align-items:center;gap:10px;min-height:54px;padding:8px 12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(12,10,18,.82);transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;}
+    .release-step{display:flex;align-items:center;gap:10px;min-height:54px;padding:8px 12px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(12,10,18,.82);transition:background .2s ease,border-color .2s ease,box-shadow .2s ease,transform .2s ease;}
     .release-step.active{border-color:rgba(139,61,255,.68);background:linear-gradient(135deg,rgba(139,61,255,.23),rgba(66,24,112,.16));box-shadow:0 0 18px rgba(139,61,255,.15);}
-    .release-step-number{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.08);font-size:12px;font-weight:800;color:#fff;flex:none;}
+    .release-step.completed{border-color:rgba(139,61,255,.34);background:rgba(139,61,255,.07);}
+    .release-step-number{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.08);font-size:12px;font-weight:800;color:#fff;flex:none;transition:all .2s ease;}
     .release-step.active .release-step-number{background:linear-gradient(135deg,#8B3DFF,#6A14D1);box-shadow:0 0 16px rgba(139,61,255,.42);}
+    .release-step.completed .release-step-number{background:rgba(139,61,255,.18);color:#CDA9FF;border:1px solid rgba(139,61,255,.42);}
     .release-step strong{display:block;color:#fff;font-size:12px;line-height:1.15;}
     .release-step small{display:block;color:#8F8A9B;font-size:10px;line-height:1.3;margin-top:2px;}
-    .release-info-card{background:linear-gradient(180deg,rgba(12,11,18,.96),rgba(8,8,13,.98));border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:18px 18px 16px;box-shadow:0 16px 35px rgba(0,0,0,.25);}
+    .release-info-card,.release-stage-panel{background:linear-gradient(180deg,rgba(12,11,18,.96),rgba(8,8,13,.98));border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:18px;box-shadow:0 16px 35px rgba(0,0,0,.25);}
+    .release-info-card{padding-bottom:16px;}
     .release-info-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;}
     .release-info-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:18px;color:#fff;background:linear-gradient(135deg,#6C27D9,#9D4DFF);box-shadow:0 0 18px rgba(139,61,255,.24);flex:none;}
     .release-info-head h2{margin:0;color:#fff;font-size:18px;font-weight:800;letter-spacing:-.02em;}
@@ -262,12 +265,11 @@
     .release-field{min-width:0;}
     .release-field-full{grid-column:1/-1;}
     .release-field label,.release-section-title{display:block;margin-bottom:7px;color:#D9D4E2;font-size:11px;font-weight:800;letter-spacing:.01em;}
-    .release-field label span{color:#fff;}
-    .release-control{width:100%;height:38px;padding:0 12px;border:1px solid rgba(255,255,255,.11);border-radius:9px;background:#0D0C14;color:#F7F4FB;font:600 12px/1.1 inherit;outline:none;transition:border-color .18s ease,box-shadow .18s ease,background .18s ease,transform .18s ease;}
+    .release-field label span,.release-section-title span{color:#fff;}
+    .release-control{width:100%;height:38px;padding:0 12px;border:1px solid rgba(255,255,255,.11);border-radius:9px;background:#0D0C14;color:#F7F4FB;font:600 12px/1.1 inherit;outline:none;transition:border-color .18s ease,box-shadow .18s ease,background .18s ease,transform .18s ease;box-sizing:border-box;}
     .release-control::placeholder{color:#7E7989;}
     .release-control:hover{border-color:rgba(255,255,255,.17);}
     .release-control:focus{border-color:#9C59FF;box-shadow:0 0 0 3px rgba(139,61,255,.13),0 0 16px rgba(139,61,255,.14);background:#0F0D18;}
-    .release-control:invalid:not(:placeholder-shown){border-color:rgba(255,100,112,.45);}
     .release-divider{height:1px;background:rgba(255,255,255,.08);margin:18px 0;}
     .release-collab-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,.5fr);gap:18px;align-items:start;}
     .release-helper{margin:-2px 0 11px;color:#8F8A9B;font-size:10px;}
@@ -276,12 +278,13 @@
     .release-segment:hover,.release-explicit-segment:hover{background:rgba(255,255,255,.05);}
     .release-segment.active,.release-explicit-segment.active{background:linear-gradient(135deg,#8B3DFF,#6A14D1);color:#fff;box-shadow:0 0 16px rgba(139,61,255,.28);}
     .release-segment:active,.release-explicit-segment:active{transform:scale(.97);}
-    .release-collab-panel{max-height:0;overflow:hidden;opacity:0;transform:translateY(-4px);transition:max-height .22s ease,opacity .2s ease,transform .22s ease;margin-top:12px;}
-    .release-collab-panel.is-open{max-height:520px;opacity:1;transform:translateY(0);}
+    .release-collab-panel{max-height:0;overflow:hidden;opacity:0;transform:translateY(-4px);transition:max-height .22s ease,opacity .2s ease,transform .22s ease,margin-top .22s ease;margin-top:0;}
+    .release-collab-panel.is-open{max-height:520px;opacity:1;transform:translateY(0);margin-top:12px;}
     .release-artist-row{display:grid;grid-template-columns:minmax(0,1fr) 34px;gap:8px;align-items:end;margin-top:9px;animation:releaseRowIn .2s ease both;}
     @keyframes releaseRowIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
     .release-artist-remove{height:34px;border:1px solid rgba(255,92,138,.22);border-radius:8px;background:rgba(255,92,138,.05);color:#FF86AE;display:grid;place-items:center;cursor:pointer;transition:all .18s ease;}
     .release-artist-remove:hover{background:rgba(255,92,138,.11);border-color:rgba(255,92,138,.4);transform:translateY(-1px);}
+    .release-artist-remove:active{transform:scale(.94);}
     .release-collab-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:11px;}
     .release-add-btn{height:34px;padding:0 12px;border:1px solid rgba(139,61,255,.48);border-radius:8px;background:rgba(139,61,255,.08);color:#E9DEFF;font:700 11px/1 inherit;cursor:pointer;transition:all .18s ease;}
     .release-add-btn:hover{background:rgba(139,61,255,.15);border-color:rgba(180,92,255,.72);box-shadow:0 0 12px rgba(139,61,255,.18);}
@@ -296,24 +299,46 @@
     .release-toggle-row:hover{background:rgba(139,61,255,.04);}
     .release-toggle-icon{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:rgba(255,255,255,.07);font-size:11px;color:#D8C0FF;}
     .release-toggle-row input{position:absolute;opacity:0;pointer-events:none;}
-    .release-switch{justify-self:end;width:34px;height:19px;border-radius:999px;background:#282633;border:1px solid rgba(255,255,255,.13);padding:2px;display:flex;align-items:center;transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;}
+    .release-switch{justify-self:end;width:34px;height:19px;border-radius:999px;background:#282633;border:1px solid rgba(255,255,255,.13);padding:2px;display:flex;align-items:center;transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;box-sizing:border-box;}
     .release-switch span{width:13px;height:13px;border-radius:50%;background:#F1EFF6;box-shadow:0 1px 4px rgba(0,0,0,.4);transition:transform .2s ease,background .2s ease;}
     .release-toggle-row:has(input:checked) .release-switch{background:linear-gradient(90deg,#7E21FF,#B45CFF);border-color:rgba(180,92,255,.72);box-shadow:0 0 10px rgba(139,61,255,.24);}
     .release-toggle-row:has(input:checked) .release-switch span{transform:translateX(15px);background:#fff;}
     .release-toggle-row:has(input:checked){color:#fff;background:rgba(139,61,255,.035);}
-    .release-stage-panel{background:linear-gradient(180deg,rgba(12,11,18,.96),rgba(8,8,13,.98));border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:18px;animation:releaseStageIn .2s ease both;}
-    @keyframes releaseStageIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+    .release-stage-panel{animation:releaseStageIn .28s ease both;}
+    @keyframes releaseStageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
     .release-stage-panel.hidden{display:none;}
     .release-file-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
-    .release-file-card{position:relative;min-height:150px;padding:18px;border:1px dashed rgba(139,61,255,.35);border-radius:10px;background:rgba(139,61,255,.04);display:flex;flex-direction:column;gap:7px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease;}
+    .release-file-card{position:relative;min-height:190px;padding:18px;border:1px dashed rgba(139,61,255,.35);border-radius:10px;background:rgba(139,61,255,.04);display:flex;flex-direction:column;gap:7px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease;overflow:hidden;}
     .release-file-card:hover{border-color:rgba(180,92,255,.7);background:rgba(139,61,255,.08);transform:translateY(-1px);}
-    .release-file-card input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+    .release-file-card input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;}
     .release-file-card .release-section-title{margin-bottom:0;}
     .release-file-hint{font-size:10px;color:#8F8A9B;}
     .release-file-button{align-self:flex-start;margin-top:auto;padding:8px 12px;border:1px solid rgba(139,61,255,.5);border-radius:8px;background:rgba(139,61,255,.1);color:#E9DEFF;font-size:11px;font-weight:800;}
-    .release-file-name{font-size:10px;color:#A9A4B2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .release-file-name{font-size:10px;color:#A9A4B2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
+    .release-file-meta{display:flex;align-items:center;gap:8px;color:#8F8A9B;font-size:10px;min-height:16px;}
+    .release-file-status{font-weight:800;color:#8F8A9B;}
+    .release-file-status.done{color:#B9FFDA;}
+    .release-progress{height:4px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;opacity:0;transition:opacity .2s ease;}
+    .release-progress.is-visible{opacity:1;}
+    .release-progress-bar{height:100%;width:0;background:linear-gradient(90deg,#7E21FF,#B45CFF);transition:width .35s ease;}
+    .release-cover-preview{width:84px;height:84px;border-radius:10px;object-fit:cover;border:1px solid rgba(255,255,255,.12);display:none;background:#0D0C14;}
+    .release-cover-preview.is-visible{display:block;animation:releaseRowIn .2s ease both;}
     .release-review-content{border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:4px 14px;background:rgba(255,255,255,.015);}
-.release-submit-message{min-height:0;margin-top:10px;}
+    .release-review-row{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07);}
+    .release-review-row:last-child{border-bottom:0;}
+    .release-review-label{color:#8F8A9B;font-size:11px;}
+    .release-review-value{color:#F7F4FB;font-size:11px;text-align:right;max-width:70%;word-break:break-word;}
+    .release-review-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;}
+    .release-review-edit{height:30px;padding:0 10px;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:#0D0C14;color:#CFC9D8;font:700 10px/1 inherit;cursor:pointer;transition:all .18s ease;}
+    .release-review-edit:hover{border-color:rgba(139,61,255,.5);color:#fff;background:rgba(139,61,255,.08);}
+    .release-success-stage{text-align:center;padding:34px 18px 28px;}
+    .release-success-icon{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;margin:0 auto 16px;background:rgba(139,61,255,.15);border:1px solid rgba(139,61,255,.45);color:#fff;font-size:30px;box-shadow:0 0 26px rgba(139,61,255,.2);animation:releaseSuccessPop .35s ease both;}
+    @keyframes releaseSuccessPop{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
+    .release-success-stage h2{margin:0;color:#fff;font-size:21px;font-weight:800;}
+    .release-success-stage p{margin:7px auto 0;color:#8F8A9B;font-size:12px;max-width:520px;line-height:1.5;}
+    .release-success-id{margin:14px auto 0;color:#A9A4B2;font-size:10px;}
+    .release-success-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px;}
+    .release-submit-message{min-height:0;margin-top:10px;}
     .release-form-footer{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:10px;}
     .release-cancel-btn,.release-continue-btn{height:38px;border-radius:9px;padding:0 16px;font:800 11px/1 inherit;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease;}
     .release-cancel-btn{border:1px solid rgba(255,255,255,.12);background:#0D0C14;color:#E6E2EB;}
@@ -323,8 +348,8 @@
     .release-continue-btn:active,.release-cancel-btn:active{transform:translateY(0) scale(.98);}
     .release-continue-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none;}
     @media(max-width:980px){.release-submit-progress{grid-template-columns:repeat(2,minmax(0,1fr));}.release-collab-grid{grid-template-columns:1fr}.release-collab-side{padding-left:0;border-left:0;padding-top:2px}.release-version-grid{gap:10px 12px;}}
-    @media(max-width:700px){.release-file-grid{grid-template-columns:1fr}.release-primary-fields{grid-template-columns:1fr}.release-field-full{grid-column:auto}.release-submit-progress{grid-template-columns:1fr 1fr}.release-info-card{padding:15px}.release-version-grid{grid-template-columns:1fr}.release-form-footer{justify-content:stretch}.release-cancel-btn,.release-continue-btn{flex:1;}.release-step{padding:8px}.release-step small{display:none;}}
-    @media(max-width:440px){.release-submit-progress{grid-template-columns:1fr}.release-step{min-height:46px}.release-collab-actions{align-items:stretch;flex-direction:column}.release-add-btn,.release-count{width:100%;text-align:left}.release-count{padding-left:2px;}}
+    @media(max-width:700px){.release-file-grid{grid-template-columns:1fr}.release-primary-fields{grid-template-columns:1fr}.release-field-full{grid-column:auto}.release-submit-progress{grid-template-columns:1fr 1fr}.release-info-card,.release-stage-panel{padding:15px}.release-version-grid{grid-template-columns:1fr}.release-form-footer{justify-content:stretch}.release-cancel-btn,.release-continue-btn{flex:1;}.release-step{padding:8px}.release-step small{display:none;}.release-review-row{align-items:flex-start;flex-direction:column;gap:4px}.release-review-value{max-width:100%;text-align:left;}}
+    @media(max-width:440px){.release-submit-progress{grid-template-columns:1fr}.release-step{min-height:46px}.release-collab-actions{align-items:stretch;flex-direction:column}.release-add-btn,.release-count{width:100%;text-align:left}.release-count{padding-left:2px;}.release-success-actions{flex-direction:column;}.release-success-actions button{width:100%;}}
 
     /* ===== ADMIN PORTAL ===== */
     #app {
@@ -1928,7 +1953,7 @@
           </div>
 
           <form id="releaseSubmitForm" onsubmit="event.preventDefault(); submitRelease();" novalidate>
-            <div class="release-info-card">
+            <div class="release-info-card" data-release-stage="1">
               <div class="release-info-head">
                 <div class="release-info-icon" aria-hidden="true">♫</div>
                 <div><h2>Información del lanzamiento</h2><p>Completa la información básica de tu release.</p></div>
@@ -1950,10 +1975,7 @@
                 <div class="release-field">
                   <label for="fType">TIPO DE LANZAMIENTO <span>*</span></label>
                   <select id="fType" class="release-control" required>
-                    <option value="Single">Single</option>
-                    <option value="EP">EP</option>
-                    <option value="Álbum">Álbum</option>
-                    <option value="Mixtape">Mixtape</option>
+                    <option value="Single">Single</option><option value="EP">EP</option><option value="Álbum">Álbum</option><option value="Mixtape">Mixtape</option>
                   </select>
                 </div>
                 <div class="release-field">
@@ -1974,7 +1996,6 @@
                     <button type="button" class="release-segment" data-value="yes" aria-pressed="false">Sí</button>
                     <button type="button" class="release-segment active" data-value="no" aria-pressed="true">No</button>
                   </div>
-
                   <div id="releaseCollaboratorsPanel" class="release-collab-panel" aria-hidden="true">
                     <div id="releaseArtistsList"></div>
                     <div class="release-collab-actions">
@@ -1983,19 +2004,13 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="release-collab-side">
-                  <div class="release-field">
+                  <div class="release-field" id="releaseCollabTypeField" hidden>
                     <label for="fCollabType">TIPO DE COLABORACIÓN</label>
                     <select id="fCollabType" class="release-control">
-                      <option value="Featuring">Featuring</option>
-                      <option value="&amp;">&amp;</option>
-                      <option value="With">With</option>
-                      <option value="Remix">Remix</option>
-                      <option value="Vs.">Vs.</option>
+                      <option value="Featuring">Featuring</option><option value="&amp;">&amp;</option><option value="With">With</option><option value="Remix">Remix</option><option value="Vs.">Vs.</option>
                     </select>
                   </div>
-
                   <div class="release-field release-explicit-field">
                     <label>CONTENIDO EXPLÍCITO <span>*</span></label>
                     <div class="release-yesno" role="group" aria-label="Contenido explícito">
@@ -2008,12 +2023,10 @@
               </div>
 
               <div class="release-divider"></div>
-
               <div class="release-field">
                 <div class="release-section-title">VERSIÓN DEL LANZAMIENTO</div>
                 <div class="release-helper">Selecciona todas las versiones que tendrá este lanzamiento. Puedes activar varias.</div>
               </div>
-
               <div class="release-version-grid" id="releaseVersionGrid">
                 <div class="release-version-column">
                   <label class="release-toggle-row"><span class="release-toggle-icon">♫</span><span>Original</span><input type="checkbox" data-release-version="Original" checked><span class="release-switch"><span></span></span></label>
@@ -2028,47 +2041,54 @@
                   <label class="release-toggle-row"><span class="release-toggle-icon">✣</span><span>No Kick</span><input type="checkbox" data-release-version="No Kick"><span class="release-switch"><span></span></span></label>
                 </div>
               </div>
-
-              <input id="fReal" type="hidden" value="">
-              <input id="fCredits" type="hidden" value="">
-              <input id="fVersion" type="hidden" value="Original">
-              <input id="fGenreHidden" type="hidden" value="Brazilian Funk">
-              <input id="fAccept" type="checkbox" hidden checked>
+              <input id="fReal" type="hidden" value=""><input id="fCredits" type="hidden" value=""><input id="fVersion" type="hidden" value="Original"><input id="fGenreHidden" type="hidden" value="Brazilian Funk"><input id="fAccept" type="checkbox" hidden checked>
               <div id="submitMsg" class="release-submit-message"></div>
             </div>
 
             <div class="release-stage-panel hidden" data-release-stage="2">
-              <div class="release-info-head">
-                <div class="release-info-icon" aria-hidden="true">♫</div>
-                <div><h2>Archivos del lanzamiento</h2><p>Adjunta el master y la portada de tu release.</p></div>
-              </div>
+              <div class="release-info-head"><div class="release-info-icon" aria-hidden="true">♫</div><div><h2>Archivos del lanzamiento</h2><p>Sube los archivos de tu release.</p></div></div>
               <div class="release-file-grid">
-                <label class="release-file-card">
-                  <span class="release-section-title">MASTER WAV <span>*</span></span>
+                <label class="release-file-card" for="fWav">
+                  <span class="release-section-title">MASTER (WAV) <span>*</span></span>
                   <span class="release-file-hint">Archivo WAV de alta calidad.</span>
-                  <input id="fWav" type="file" accept=".wav,audio/wav">
+                  <div class="release-file-meta"><span class="release-file-status" data-file-status="wav">Pendiente</span></div>
+                  <div class="release-progress" data-progress="wav"><div class="release-progress-bar"></div></div>
                   <span class="release-file-button">Seleccionar WAV</span>
                   <span class="release-file-name" data-file-name="wav">Ningún archivo seleccionado</span>
+                  <input id="fWav" type="file" accept=".wav,audio/wav">
                 </label>
-                <label class="release-file-card">
+                <label class="release-file-card" for="fCover">
                   <span class="release-section-title">PORTADA <span>*</span></span>
                   <span class="release-file-hint">JPG, PNG o WebP.</span>
-                  <input id="fCover" type="file" accept="image/png,image/jpeg,image/webp">
+                  <img id="releaseCoverPreview" class="release-cover-preview" alt="Vista previa de portada">
+                  <div class="release-file-meta"><span class="release-file-status" data-file-status="cover">Pendiente</span></div>
+                  <div class="release-progress" data-progress="cover"><div class="release-progress-bar"></div></div>
                   <span class="release-file-button">Seleccionar portada</span>
                   <span class="release-file-name" data-file-name="cover">Ningún archivo seleccionado</span>
+                  <input id="fCover" type="file" accept="image/png,image/jpeg,image/webp">
                 </label>
               </div>
             </div>
 
             <div class="release-stage-panel hidden" data-release-stage="3">
-              <div class="release-info-head">
-                <div class="release-info-icon" aria-hidden="true">✓</div>
-                <div><h2>Revisión</h2><p>Verifica la información antes de enviar tu lanzamiento.</p></div>
-              </div>
+              <div class="release-info-head"><div class="release-info-icon" aria-hidden="true">✓</div><div><h2>Revisión del lanzamiento</h2><p>Verifica la información antes de enviar tu lanzamiento.</p></div></div>
               <div id="releaseReviewContent" class="release-review-content"></div>
+              <div class="release-review-actions"><button type="button" class="release-review-edit" data-review-edit="1">Editar información</button><button type="button" class="release-review-edit" data-review-edit="2">Editar archivos</button></div>
             </div>
 
-            <div class="release-form-footer">
+            <div class="release-stage-panel hidden release-success-stage" data-release-stage="4">
+              <div class="release-success-icon" aria-hidden="true">✓</div>
+              <h2>¡Lanzamiento enviado!</h2>
+              <p>Tu música ha sido enviada a Bersz Records y está en revisión.</p>
+              <p>Te notificaremos cuando sea aprobada.</p>
+              <div id="releaseSuccessId" class="release-success-id"></div>
+              <div class="release-success-actions">
+                <button type="button" class="release-continue-btn" onclick="navigateTo('releases')">Ir a mis lanzamientos</button>
+                <button type="button" class="release-cancel-btn" onclick="resetReleaseFlow()">Enviar otro lanzamiento</button>
+              </div>
+            </div>
+
+            <div class="release-form-footer" data-release-footer>
               <button class="release-cancel-btn" type="button" onclick="handleReleaseCancel()">Cancelar</button>
               <button id="releaseContinueBtn" class="release-continue-btn" type="submit">Guardar y continuar <span>→</span></button>
             </div>
@@ -3842,6 +3862,9 @@
     let releaseInvitedArtists = [];
     const RELEASE_MAX_INVITED = 5;
     const RELEASE_ARTIST_FALLBACKS = ['MC GW','DJ L21','Bonaizznt','Yung Exu','DJ KAIQUE','DJ FAMEXY','DJ VALUCHI 22','refice'];
+    const RELEASE_DRAFT_KEY = 'bersz_release_draft';
+    let releaseCurrentStep = 1;
+    let releaseLastSubmissionId = '';
 
     function getReleaseArtistOptions(){
       const fromCatalog = releases.map(r=>String(r.artist||'').trim()).filter(Boolean);
@@ -3849,29 +3872,28 @@
       return [...new Set([...fromCatalog,...fromCurrentUser,...RELEASE_ARTIST_FALLBACKS])];
     }
 
-    function setupReleaseInformationUI() {
+    function setupReleaseInformationUI(){
       const form=document.getElementById('releaseSubmitForm');
       if(!form) return;
       const date=document.getElementById('fDate');
       if(date && !date.value) date.value='2026-09-26';
       const realInput=document.getElementById('fReal');
       if(realInput && !realInput.value) realInput.value=user?.realName||user?.real_name||user?.name||'';
-      const collabButtons=document.querySelectorAll('.release-segment');
+      const collabButtons=[...document.querySelectorAll('.release-segment')];
       const collabPanel=document.getElementById('releaseCollaboratorsPanel');
-      const collabType=document.getElementById('fCollabType');
+      const collabTypeField=document.getElementById('releaseCollabTypeField');
+      const explicitButtons=[...document.querySelectorAll('.release-explicit-segment')];
       const explicitInput=document.getElementById('fExplicit');
       const artistList=document.getElementById('releaseArtistsList');
       const count=document.getElementById('releaseArtistsCount');
       const addBtn=document.getElementById('addReleaseArtist');
-      const explicitButtons=document.querySelectorAll('.release-explicit-segment');
       const versions=[...document.querySelectorAll('[data-release-version]')];
 
       function syncCollabUI(open){
-        collabPanel?.classList.toggle('is-open',open);
-        collabPanel?.setAttribute('aria-hidden',String(!open));
-        if(collabType){collabType.disabled=!open;}
-        if(!open){releaseInvitedArtists=[]; renderReleaseInvitedArtists();}
-        if(open && releaseInvitedArtists.length===0){releaseInvitedArtists=['']; renderReleaseInvitedArtists();}
+        if(collabPanel){collabPanel.classList.toggle('is-open',open);collabPanel.setAttribute('aria-hidden',String(!open));}
+        if(collabTypeField) collabTypeField.hidden=!open;
+        if(!open){releaseInvitedArtists=[];renderReleaseInvitedArtists();}
+        if(open && releaseInvitedArtists.length===0){releaseInvitedArtists=[''];renderReleaseInvitedArtists();}
       }
       function renderReleaseInvitedArtists(){
         if(!artistList) return;
@@ -3886,215 +3908,193 @@
             </div>
             ${index>0?`<button type="button" class="release-artist-remove" data-remove-index="${index}" aria-label="Eliminar artista invitado">🗑</button>`:'<span></span>'}
           </div>`).join('');
-        artistList.querySelectorAll('.release-guest-select').forEach(sel=>sel.addEventListener('change',e=>{
-          const i=Number(e.currentTarget.dataset.guestIndex); releaseInvitedArtists[i]=e.currentTarget.value;
-        }));
-        artistList.querySelectorAll('[data-remove-index]').forEach(btn=>btn.addEventListener('click',e=>{
-          const i=Number(e.currentTarget.dataset.removeIndex); releaseInvitedArtists.splice(i,1); renderReleaseInvitedArtists();
-        }));
+        artistList.querySelectorAll('.release-guest-select').forEach(sel=>sel.addEventListener('change',e=>{releaseInvitedArtists[Number(e.currentTarget.dataset.guestIndex)]=e.currentTarget.value;}));
+        artistList.querySelectorAll('[data-remove-index]').forEach(btn=>btn.addEventListener('click',e=>{releaseInvitedArtists.splice(Number(e.currentTarget.dataset.removeIndex),1);renderReleaseInvitedArtists();}));
         if(count) count.textContent=`Máximo 5 artistas invitados (${releaseInvitedArtists.length}/5)`;
-        if(addBtn){addBtn.disabled=releaseInvitedArtists.length>=RELEASE_MAX_INVITED;}
+        if(addBtn) addBtn.disabled=releaseInvitedArtists.length>=RELEASE_MAX_INVITED;
       }
       function setExplicit(value){
         if(explicitInput) explicitInput.value=value==='yes'?'Sí':'No';
         explicitButtons.forEach(btn=>{const active=btn.dataset.value===value;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active));});
       }
       collabButtons.forEach(btn=>btn.addEventListener('click',()=>{
-        const value=btn.dataset.value; const open=value==='yes';
+        const open=btn.dataset.value==='yes';
         collabButtons.forEach(b=>{const active=b===btn;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
         syncCollabUI(open);
       }));
       explicitButtons.forEach(btn=>btn.addEventListener('click',()=>setExplicit(btn.dataset.value)));
-      addBtn?.addEventListener('click',()=>{
-        if(releaseInvitedArtists.length>=RELEASE_MAX_INVITED)return;
-        releaseInvitedArtists.push(''); renderReleaseInvitedArtists();
-      });
-      versions.forEach(input=>input.addEventListener('change',()=>syncReleaseVersionField()));
-      setExplicit('no'); syncCollabUI(false); syncReleaseVersionField(); renderReleaseInvitedArtists();
-      document.getElementById('fWav')?.addEventListener('change',e=>{
-        const name=document.querySelector('[data-file-name="wav"]');
-        if(name) name.textContent=e.currentTarget.files?.[0]?.name||'Ningún archivo seleccionado';
-      });
-      document.getElementById('fCover')?.addEventListener('change',e=>{
-        const name=document.querySelector('[data-file-name="cover"]');
-        if(name) name.textContent=e.currentTarget.files?.[0]?.name||'Ningún archivo seleccionado';
-      });
+      addBtn?.addEventListener('click',()=>{if(releaseInvitedArtists.length<RELEASE_MAX_INVITED){releaseInvitedArtists.push('');renderReleaseInvitedArtists();}});
+      versions.forEach(input=>input.addEventListener('change',syncReleaseVersionField));
+      document.querySelectorAll('[data-review-edit]').forEach(btn=>btn.addEventListener('click',()=>updateReleaseStepUI(Number(btn.dataset.reviewEdit))));
+      setExplicit('no');
+      syncCollabUI(collabButtons.find(b=>b.classList.contains('active'))?.dataset.value==='yes');
+      renderReleaseInvitedArtists();
+      syncReleaseVersionField();
+      setupReleaseFileInputs();
       updateReleaseStepUI(1);
+    }
 
-      function syncReleaseVersionField(){
-        const selected=versions.filter(i=>i.checked).map(i=>i.dataset.releaseVersion);
-        const versionField=document.getElementById('fVersion'); if(versionField) versionField.value=selected.join(', ');
+    function syncReleaseVersionField(){
+      const selected=[...document.querySelectorAll('[data-release-version]:checked')].map(i=>i.dataset.releaseVersion);
+      const field=document.getElementById('fVersion');
+      if(field) field.value=selected.join(', ');
+    }
+
+    function setupReleaseFileInputs(){
+      const wav=document.getElementById('fWav');
+      const cover=document.getElementById('fCover');
+      if(wav && !wav.dataset.bound){wav.dataset.bound='1';wav.addEventListener('change',()=>handleReleaseFileSelected('wav',wav.files?.[0]));}
+      if(cover && !cover.dataset.bound){cover.dataset.bound='1';cover.addEventListener('change',()=>handleReleaseFileSelected('cover',cover.files?.[0]));}
+    }
+
+    function handleReleaseFileSelected(kind,file){
+      const name=document.querySelector(`[data-file-name="${kind}"]`);
+      const status=document.querySelector(`[data-file-status="${kind}"]`);
+      const progress=document.querySelector(`[data-progress="${kind}"]`);
+      const bar=progress?.querySelector('.release-progress-bar');
+      if(!file){if(name)name.textContent='Ningún archivo seleccionado';if(status){status.textContent='Pendiente';status.classList.remove('done');}progress?.classList.remove('is-visible');if(bar)bar.style.width='0%';return;}
+      if(name)name.textContent=`${file.name} · ${formatReleaseBytes(file.size)}`;
+      if(progress)progress.classList.add('is-visible');
+      if(bar)bar.style.width='0%';
+      requestAnimationFrame(()=>{if(bar)bar.style.width='100%';});
+      if(status){status.textContent='Completado';status.classList.add('done');}
+      if(kind==='cover' && file.type.startsWith('image/')){
+        const preview=document.getElementById('releaseCoverPreview');
+        if(preview){preview.src=URL.createObjectURL(file);preview.classList.add('is-visible');}
       }
+    }
+
+    function formatReleaseBytes(bytes){
+      if(!Number.isFinite(bytes)||bytes<=0)return '0 B';
+      const units=['B','KB','MB','GB'];let i=0,n=bytes;
+      while(n>=1024&&i<units.length-1){n/=1024;i++;}
+      return `${n.toFixed(n>=10||i===0?0:1)} ${units[i]}`;
     }
 
     function validateReleaseInformation(){
-      const title=document.getElementById('fTitle')?.value.trim();
-      const artist=document.getElementById('fArtist')?.value.trim();
+      const title=document.getElementById('fTitle')?.value?.trim();
+      const artist=document.getElementById('fArtist')?.value?.trim();
       const date=document.getElementById('fDate')?.value;
       const type=document.getElementById('fType')?.value;
       const genre=document.getElementById('fGenre')?.value;
-      const explicit=document.getElementById('fExplicit')?.value;
+      const explicit=document.getElementById('fExplicit')?.value || (document.querySelector('.release-explicit-segment.active')?.dataset.value==='yes'?'Sí':'No');
       const wantsGuests=document.querySelector('.release-segment.active')?.dataset.value==='yes';
-      if(!title||!artist||!date||!type||!genre||!explicit) return 'Completa los campos obligatorios antes de continuar.';
-      if(wantsGuests && (!releaseInvitedArtists.length || releaseInvitedArtists.some(a=>!a))) return 'Selecciona al menos un artista invitado y completa todos los campos de artistas.';
-      const selectedVersions=[...document.querySelectorAll('[data-release-version]:checked')];
-      if(!selectedVersions.length) return 'Selecciona al menos una versión del lanzamiento.';
+      if(!title||!artist||!date||!type||!genre||!explicit)return 'Completa los campos obligatorios antes de continuar.';
+      if(wantsGuests&&(!releaseInvitedArtists.length||releaseInvitedArtists.some(a=>!String(a||'').trim())))return 'Selecciona al menos un artista invitado y completa todos los campos de artistas.';
+      if(!document.querySelector('[data-release-version]:checked'))return 'Selecciona al menos una versión del lanzamiento.';
       return '';
     }
 
-    let releaseCurrentStep = 1;
-    const RELEASE_DRAFT_KEY = 'bersz_release_draft';
-
     function updateReleaseStepUI(step){
-      releaseCurrentStep=step;
+      const next=Math.max(1,Math.min(4,Number(step)||1));
+      releaseCurrentStep=next;
       const steps=[...document.querySelectorAll('.release-step')];
       steps.forEach((el,i)=>{
-        const active=i===step-1;
-        const complete=i<step-1;
-        el.classList.toggle('active',active);
-        el.classList.toggle('completed',complete);
+        const active=i===next-1,complete=i<next-1;
+        el.classList.toggle('active',active);el.classList.toggle('completed',complete);
+        const number=el.querySelector('.release-step-number');
+        if(number)number.textContent=complete?'✓':String(i+1);
       });
-      document.querySelectorAll('[data-release-stage]').forEach(el=>{
-        el.classList.toggle('hidden',Number(el.dataset.releaseStage)!==step);
-      });
+      document.querySelectorAll('[data-release-stage]').forEach(el=>el.classList.toggle('hidden',Number(el.dataset.releaseStage)!==next));
+      const footer=document.querySelector('[data-release-footer]');
       const btn=document.getElementById('releaseContinueBtn');
       const cancel=document.querySelector('.release-cancel-btn');
-      if(btn){
-        btn.disabled=false;
-        btn.innerHTML=step===1?'Guardar y continuar <span>→</span>':step===2?'Guardar archivos y continuar <span>→</span>':'Enviar lanzamiento <span>→</span>';
-      }
-      if(cancel) cancel.textContent=step===1?'Cancelar':'Atrás';
-      const form=document.getElementById('releaseSubmitForm');
-      if(form) form.dataset.releaseStep=String(step);
+      if(footer)footer.style.display=next===4?'none':'flex';
+      if(btn){btn.disabled=false;btn.innerHTML=next===1?'Guardar y continuar <span>→</span>':next===2?'Guardar archivos y continuar <span>→</span>':'Enviar lanzamiento <span>→</span>';}
+      if(cancel)cancel.textContent=next===1?'Cancelar':'Atrás';
+      const form=document.getElementById('releaseSubmitForm');if(form)form.dataset.releaseStep=String(next);
+      window.setTimeout(()=>document.querySelector(`[data-release-stage="${next}"]`)?.scrollIntoView({behavior:'smooth',block:'nearest'}),0);
     }
 
     function saveReleaseDraft(){
-      const selectedVersions=[...document.querySelectorAll('[data-release-version]:checked')].map(i=>i.dataset.releaseVersion);
-      const draft={
-        title:document.getElementById('fTitle')?.value.trim()||'',
-        artist:document.getElementById('fArtist')?.value.trim()||'',
-        date:document.getElementById('fDate')?.value||'',
-        type:document.getElementById('fType')?.value||'Single',
-        genre:document.getElementById('fGenre')?.value||'Brazilian Funk',
-        explicit:document.getElementById('fExplicit')?.value||'No',
-        invitedArtists:[...releaseInvitedArtists],
-        collaborationType:document.getElementById('fCollabType')?.value||'Featuring',
-        versions:selectedVersions,
-        savedAt:Date.now()
-      };
+      const selected=[...document.querySelectorAll('[data-release-version]:checked')].map(i=>i.dataset.releaseVersion);
+      const draft={title:document.getElementById('fTitle')?.value.trim()||'',artist:document.getElementById('fArtist')?.value.trim()||'',date:document.getElementById('fDate')?.value||'',type:document.getElementById('fType')?.value||'Single',genre:document.getElementById('fGenre')?.value||'Brazilian Funk',explicit:document.getElementById('fExplicit')?.value||'No',invitedArtists:[...releaseInvitedArtists],collaborationType:document.getElementById('fCollabType')?.value||'Featuring',versions:selected,savedAt:Date.now()};
       try{localStorage.setItem(RELEASE_DRAFT_KEY,JSON.stringify(draft));}catch(e){}
       return draft;
     }
 
     function validateReleaseFiles(){
-      const wav=document.getElementById('fWav')?.files?.[0];
-      const cover=document.getElementById('fCover')?.files?.[0];
-      if(!wav) return 'Adjunta el master WAV para continuar.';
-      if(!/\.wav$/i.test(wav.name)) return 'El master debe estar en formato WAV.';
-      if(!cover) return 'Adjunta la portada para continuar.';
+      const wav=document.getElementById('fWav')?.files?.[0],cover=document.getElementById('fCover')?.files?.[0];
+      if(!wav)return 'Adjunta el master WAV para continuar.';
+      if(!/\.wav$/i.test(wav.name))return 'El master debe estar en formato WAV.';
+      if(!cover)return 'Adjunta la portada para continuar.';
+      if(!/^image\/(png|jpeg|webp)$/i.test(cover.type))return 'La portada debe ser JPG, PNG o WebP.';
       return '';
     }
 
     function renderReleaseReview(){
-      const box=document.getElementById('releaseReviewContent');
-      if(!box) return;
+      const box=document.getElementById('releaseReviewContent');if(!box)return;
       const versions=[...document.querySelectorAll('[data-release-version]:checked')].map(i=>i.dataset.releaseVersion);
       const guests=releaseInvitedArtists.filter(Boolean);
-      const rows=[
-        ['Título',document.getElementById('fTitle')?.value.trim()],
-        ['Artista principal',document.getElementById('fArtist')?.value.trim()],
-        ['Fecha',document.getElementById('fDate')?.value],
-        ['Tipo',document.getElementById('fType')?.value],
-        ['Género',document.getElementById('fGenre')?.value],
-        ['Contenido explícito',document.getElementById('fExplicit')?.value],
-        ['Colaboración',guests.length?`${document.getElementById('fCollabType')?.value||'Featuring'} · ${guests.join(', ')}`:'Sin artistas invitados'],
-        ['Versiones',versions.join(', ')||'Original']
-      ];
-      box.innerHTML=rows.map(([label,value])=>`
-        <div style="display:flex;justify-content:space-between;gap:18px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);">
-          <span style="color:#8F8A9B;font-size:11px;">${esc(label)}</span>
-          <strong style="color:#F7F4FB;font-size:11px;text-align:right;">${esc(value||'—')}</strong>
-        </div>`).join('');
+      const rows=[['Título',document.getElementById('fTitle')?.value.trim()],['Artista principal',document.getElementById('fArtist')?.value.trim()],['Fecha',document.getElementById('fDate')?.value],['Tipo',document.getElementById('fType')?.value],['Género',document.getElementById('fGenre')?.value],['Contenido explícito',document.getElementById('fExplicit')?.value||'No'],['Colaboración',guests.length?`${document.getElementById('fCollabType')?.value||'Featuring'} · ${guests.join(', ')}`:'Sin artistas invitados'],['Versiones',versions.join(', ')||'Original'],['Master WAV',document.getElementById('fWav')?.files?.[0]?.name||'—'],['Portada',document.getElementById('fCover')?.files?.[0]?.name||'—']];
+      box.innerHTML=rows.map(([label,value])=>`<div class="release-review-row"><span class="release-review-label">${esc(label)}</span><strong class="release-review-value">${esc(value||'—')}</strong></div>`).join('');
     }
 
-    function handleReleaseCancel(){
-      if(releaseCurrentStep===1){navigateTo('releases');return;}
-      updateReleaseStepUI(releaseCurrentStep-1);
+    function handleReleaseCancel(){if(releaseCurrentStep===1){navigateTo('releases');return;}updateReleaseStepUI(releaseCurrentStep-1);}
+
+    function resetReleaseFlow(){
+      const form=document.getElementById('releaseSubmitForm');
+      form?.reset();
+      releaseInvitedArtists=[];releaseLastSubmissionId='';
+      document.getElementById('releaseCoverPreview')?.classList.remove('is-visible');
+      const preview=document.getElementById('releaseCoverPreview');if(preview)preview.removeAttribute('src');
+      document.querySelectorAll('[data-file-name]').forEach(el=>el.textContent='Ningún archivo seleccionado');
+      document.querySelectorAll('[data-file-status]').forEach(el=>{el.textContent='Pendiente';el.classList.remove('done');});
+      document.querySelectorAll('.release-progress').forEach(el=>el.classList.remove('is-visible'));
+      document.querySelectorAll('.release-progress-bar').forEach(el=>el.style.width='0%');
+      document.getElementById('releaseSuccessId').textContent='';
+      document.getElementById('fDate').value='2026-09-26';
+      setupReleaseInformationUI();
+      updateReleaseStepUI(1);
     }
 
-    async function submitRelease() {
+    async function submitRelease(){
       const token=localStorage.getItem(SESSION_KEY);
-      if(!token || !user){ showToast('Tu sesión ha expirado.'); return logout(); }
+      if(!token||!user){showToast('Tu sesión ha expirado.');return logout();}
       const msg=document.getElementById('submitMsg');
-
       if(releaseCurrentStep===1){
         const validation=validateReleaseInformation();
         if(validation){if(msg)msg.innerHTML=`<div class="toast">${esc(validation)}</div>`;return;}
-        saveReleaseDraft();
-        if(msg)msg.innerHTML='';
-        updateReleaseStepUI(2);
-        return;
+        saveReleaseDraft();if(msg)msg.innerHTML='';updateReleaseStepUI(2);return;
       }
-
       if(releaseCurrentStep===2){
         const validation=validateReleaseFiles();
         if(validation){if(msg)msg.innerHTML=`<div class="toast">${esc(validation)}</div>`;return;}
-        if(msg)msg.innerHTML='';
-        renderReleaseReview();
-        updateReleaseStepUI(3);
-        return;
+        if(msg)msg.innerHTML='';renderReleaseReview();updateReleaseStepUI(3);return;
       }
-
-      const validation=validateReleaseInformation();
-      if(validation){if(msg)msg.innerHTML=`<div class="toast">${esc(validation)}</div>`;updateReleaseStepUI(1);return;}
-
-      const title=document.getElementById('fTitle')?.value.trim();
-      const artist=document.getElementById('fArtist')?.value.trim();
-      const real=document.getElementById('fReal')?.value.trim() || user.realName || user.real_name || user.name || artist;
-      const date=document.getElementById('fDate')?.value;
-      const type=document.getElementById('fType')?.value || 'Single';
-      const version=document.getElementById('fVersion')?.value.trim() || 'Original';
-      const credits=document.getElementById('fCredits')?.value.trim();
-      const genre=document.getElementById('fGenre')?.value || 'Brazilian Funk';
-      const explicit=document.getElementById('fExplicit')?.value || 'No';
-      const wav=document.getElementById('fWav')?.files?.[0];
-      const cover=document.getElementById('fCover')?.files?.[0];
-
-      if(!wav || !cover){
-        updateReleaseStepUI(2);
-        if(msg)msg.innerHTML='<div class="toast">Faltan archivos. Adjunta el master WAV y la portada.</div>';
-        return;
-      }
-
-      if(msg) msg.innerHTML='<div class="toast">Enviando lanzamiento…</div>';
-      const btn=document.getElementById('releaseContinueBtn');
-      if(btn){btn.disabled=true;btn.textContent='Enviando…';}
-
-      try{
-        const payload={
-          action:'submit',token,title,type,version,
-          artist:user.role==='admin'?artist:(user.artist||user.name),
-          real,date,credits,genre,explicit,
-          invitedArtists:releaseInvitedArtists,
-          collaborationType:document.getElementById('fCollabType')?.value||'Featuring',
-          wavFile:await fileToBase64(wav),wavName:wav.name,
-          coverFile:await fileToBase64(cover),coverName:cover.name,coverMime:cover.type||'image/jpeg'
-        };
-        const response=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-        const result=await response.json();
-        if(result.status!=='success') throw new Error(result.message||'No se pudo registrar el lanzamiento.');
-        if(msg)msg.innerHTML=`<div class="toast" style="border-color:rgba(34,197,94,.4);">✓ Lanzamiento enviado. ID: <b>${esc(result.id||result.data?.id||'')}</b><br>Estado: Pendiente de revisión.</div>`;
-        try{localStorage.removeItem(RELEASE_DRAFT_KEY);}catch(e){}
-        document.getElementById('releaseSubmitForm')?.reset();
-        releaseInvitedArtists=[];
-        setupReleaseInformationUI();
-        updateReleaseStepUI(1);
-        if(user.role!=='admin'){const f=document.getElementById('fArtist');if(f)f.value=user.artist||user.name||'';}
-        await loadReleases();
-      }catch(e){
-        if(msg)msg.innerHTML=`<div class="toast" style="border-color:rgba(239,68,68,.4);">No se pudo enviar: ${esc(e.message)}</div>`;
-      }finally{
-        if(btn){btn.disabled=false;btn.textContent='Enviar lanzamiento →';}
+      if(releaseCurrentStep===3){
+        const infoValidation=validateReleaseInformation();
+        if(infoValidation){if(msg)msg.innerHTML=`<div class="toast">${esc(infoValidation)}</div>`;updateReleaseStepUI(1);return;}
+        const fileValidation=validateReleaseFiles();
+        if(fileValidation){if(msg)msg.innerHTML=`<div class="toast">${esc(fileValidation)}</div>`;updateReleaseStepUI(2);return;}
+        const title=document.getElementById('fTitle')?.value.trim();
+        const artist=document.getElementById('fArtist')?.value.trim();
+        const real=document.getElementById('fReal')?.value.trim()||user.realName||user.real_name||user.name||artist;
+        const date=document.getElementById('fDate')?.value;
+        const type=document.getElementById('fType')?.value||'Single';
+        const version=document.getElementById('fVersion')?.value.trim()||'Original';
+        const credits=document.getElementById('fCredits')?.value.trim();
+        const genre=document.getElementById('fGenre')?.value||'Brazilian Funk';
+        const explicit=document.getElementById('fExplicit')?.value||'No';
+        const wav=document.getElementById('fWav')?.files?.[0];const cover=document.getElementById('fCover')?.files?.[0];
+        if(msg)msg.innerHTML='<div class="toast">Enviando lanzamiento…</div>';
+        const btn=document.getElementById('releaseContinueBtn');if(btn){btn.disabled=true;btn.textContent='Enviando…';}
+        try{
+          const payload={action:'submit',token,title,type,version,artist:user.role==='admin'?artist:(user.artist||user.name),real,date,credits,genre,explicit,invitedArtists:releaseInvitedArtists.filter(Boolean),collaborationType:document.getElementById('fCollabType')?.value||'Featuring',wavFile:await fileToBase64(wav),wavName:wav.name,coverFile:await fileToBase64(cover),coverName:cover.name,coverMime:cover.type||'image/jpeg'};
+          const response=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+          const result=await response.json();
+          if(result.status!=='success')throw new Error(result.message||'No se pudo registrar el lanzamiento.');
+          releaseLastSubmissionId=result.id||result.data?.id||'';
+          if(document.getElementById('releaseSuccessId'))document.getElementById('releaseSuccessId').textContent=releaseLastSubmissionId?`ID del lanzamiento: ${releaseLastSubmissionId}`:'';
+          try{localStorage.removeItem(RELEASE_DRAFT_KEY);}catch(e){}
+          if(msg)msg.innerHTML='';
+          updateReleaseStepUI(4);
+          await loadReleases();
+        }catch(e){
+          if(msg)msg.innerHTML=`<div class="toast" style="border-color:rgba(239,68,68,.4);">No se pudo enviar: ${esc(e.message)}</div>`;
+        }finally{
+          if(btn){btn.disabled=false;btn.innerHTML='Enviar lanzamiento <span>→</span>';}
+        }
       }
     }
 
