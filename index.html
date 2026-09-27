@@ -301,7 +301,19 @@
     .release-toggle-row:has(input:checked) .release-switch{background:linear-gradient(90deg,#7E21FF,#B45CFF);border-color:rgba(180,92,255,.72);box-shadow:0 0 10px rgba(139,61,255,.24);}
     .release-toggle-row:has(input:checked) .release-switch span{transform:translateX(15px);background:#fff;}
     .release-toggle-row:has(input:checked){color:#fff;background:rgba(139,61,255,.035);}
-    .release-submit-message{min-height:0;margin-top:10px;}
+    .release-stage-panel{background:linear-gradient(180deg,rgba(12,11,18,.96),rgba(8,8,13,.98));border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:18px;animation:releaseStageIn .2s ease both;}
+    @keyframes releaseStageIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+    .release-stage-panel.hidden{display:none;}
+    .release-file-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+    .release-file-card{position:relative;min-height:150px;padding:18px;border:1px dashed rgba(139,61,255,.35);border-radius:10px;background:rgba(139,61,255,.04);display:flex;flex-direction:column;gap:7px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease;}
+    .release-file-card:hover{border-color:rgba(180,92,255,.7);background:rgba(139,61,255,.08);transform:translateY(-1px);}
+    .release-file-card input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+    .release-file-card .release-section-title{margin-bottom:0;}
+    .release-file-hint{font-size:10px;color:#8F8A9B;}
+    .release-file-button{align-self:flex-start;margin-top:auto;padding:8px 12px;border:1px solid rgba(139,61,255,.5);border-radius:8px;background:rgba(139,61,255,.1);color:#E9DEFF;font-size:11px;font-weight:800;}
+    .release-file-name{font-size:10px;color:#A9A4B2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .release-review-content{border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:4px 14px;background:rgba(255,255,255,.015);}
+.release-submit-message{min-height:0;margin-top:10px;}
     .release-form-footer{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:10px;}
     .release-cancel-btn,.release-continue-btn{height:38px;border-radius:9px;padding:0 16px;font:800 11px/1 inherit;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease,border-color .18s ease;}
     .release-cancel-btn{border:1px solid rgba(255,255,255,.12);background:#0D0C14;color:#E6E2EB;}
@@ -311,7 +323,7 @@
     .release-continue-btn:active,.release-cancel-btn:active{transform:translateY(0) scale(.98);}
     .release-continue-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none;}
     @media(max-width:980px){.release-submit-progress{grid-template-columns:repeat(2,minmax(0,1fr));}.release-collab-grid{grid-template-columns:1fr}.release-collab-side{padding-left:0;border-left:0;padding-top:2px}.release-version-grid{gap:10px 12px;}}
-    @media(max-width:700px){.release-primary-fields{grid-template-columns:1fr}.release-field-full{grid-column:auto}.release-submit-progress{grid-template-columns:1fr 1fr}.release-info-card{padding:15px}.release-version-grid{grid-template-columns:1fr}.release-form-footer{justify-content:stretch}.release-cancel-btn,.release-continue-btn{flex:1;}.release-step{padding:8px}.release-step small{display:none;}}
+    @media(max-width:700px){.release-file-grid{grid-template-columns:1fr}.release-primary-fields{grid-template-columns:1fr}.release-field-full{grid-column:auto}.release-submit-progress{grid-template-columns:1fr 1fr}.release-info-card{padding:15px}.release-version-grid{grid-template-columns:1fr}.release-form-footer{justify-content:stretch}.release-cancel-btn,.release-continue-btn{flex:1;}.release-step{padding:8px}.release-step small{display:none;}}
     @media(max-width:440px){.release-submit-progress{grid-template-columns:1fr}.release-step{min-height:46px}.release-collab-actions{align-items:stretch;flex-direction:column}.release-add-btn,.release-count{width:100%;text-align:left}.release-count{padding-left:2px;}}
 
     /* ===== ADMIN PORTAL ===== */
@@ -2021,14 +2033,43 @@
               <input id="fCredits" type="hidden" value="">
               <input id="fVersion" type="hidden" value="Original">
               <input id="fGenreHidden" type="hidden" value="Brazilian Funk">
-              <input id="fWav" type="file" accept=".wav,audio/wav" hidden>
-              <input id="fCover" type="file" accept="image/png,image/jpeg,image/webp" hidden>
               <input id="fAccept" type="checkbox" hidden checked>
               <div id="submitMsg" class="release-submit-message"></div>
             </div>
 
+            <div class="release-stage-panel hidden" data-release-stage="2">
+              <div class="release-info-head">
+                <div class="release-info-icon" aria-hidden="true">♫</div>
+                <div><h2>Archivos del lanzamiento</h2><p>Adjunta el master y la portada de tu release.</p></div>
+              </div>
+              <div class="release-file-grid">
+                <label class="release-file-card">
+                  <span class="release-section-title">MASTER WAV <span>*</span></span>
+                  <span class="release-file-hint">Archivo WAV de alta calidad.</span>
+                  <input id="fWav" type="file" accept=".wav,audio/wav">
+                  <span class="release-file-button">Seleccionar WAV</span>
+                  <span class="release-file-name" data-file-name="wav">Ningún archivo seleccionado</span>
+                </label>
+                <label class="release-file-card">
+                  <span class="release-section-title">PORTADA <span>*</span></span>
+                  <span class="release-file-hint">JPG, PNG o WebP.</span>
+                  <input id="fCover" type="file" accept="image/png,image/jpeg,image/webp">
+                  <span class="release-file-button">Seleccionar portada</span>
+                  <span class="release-file-name" data-file-name="cover">Ningún archivo seleccionado</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="release-stage-panel hidden" data-release-stage="3">
+              <div class="release-info-head">
+                <div class="release-info-icon" aria-hidden="true">✓</div>
+                <div><h2>Revisión</h2><p>Verifica la información antes de enviar tu lanzamiento.</p></div>
+              </div>
+              <div id="releaseReviewContent" class="release-review-content"></div>
+            </div>
+
             <div class="release-form-footer">
-              <button class="release-cancel-btn" type="button" onclick="navigateTo('releases')">Cancelar</button>
+              <button class="release-cancel-btn" type="button" onclick="handleReleaseCancel()">Cancelar</button>
               <button id="releaseContinueBtn" class="release-continue-btn" type="submit">Guardar y continuar <span>→</span></button>
             </div>
           </form>
@@ -3813,6 +3854,8 @@
       if(!form) return;
       const date=document.getElementById('fDate');
       if(date && !date.value) date.value='2026-09-26';
+      const realInput=document.getElementById('fReal');
+      if(realInput && !realInput.value) realInput.value=user?.realName||user?.real_name||user?.name||'';
       const collabButtons=document.querySelectorAll('.release-segment');
       const collabPanel=document.getElementById('releaseCollaboratorsPanel');
       const collabType=document.getElementById('fCollabType');
@@ -3868,6 +3911,15 @@
       });
       versions.forEach(input=>input.addEventListener('change',()=>syncReleaseVersionField()));
       setExplicit('no'); syncCollabUI(false); syncReleaseVersionField(); renderReleaseInvitedArtists();
+      document.getElementById('fWav')?.addEventListener('change',e=>{
+        const name=document.querySelector('[data-file-name="wav"]');
+        if(name) name.textContent=e.currentTarget.files?.[0]?.name||'Ningún archivo seleccionado';
+      });
+      document.getElementById('fCover')?.addEventListener('change',e=>{
+        const name=document.querySelector('[data-file-name="cover"]');
+        if(name) name.textContent=e.currentTarget.files?.[0]?.name||'Ningún archivo seleccionado';
+      });
+      updateReleaseStepUI(1);
 
       function syncReleaseVersionField(){
         const selected=versions.filter(i=>i.checked).map(i=>i.dataset.releaseVersion);
@@ -3878,28 +3930,127 @@
     function validateReleaseInformation(){
       const title=document.getElementById('fTitle')?.value.trim();
       const artist=document.getElementById('fArtist')?.value.trim();
-      const real=document.getElementById('fReal')?.value.trim();
       const date=document.getElementById('fDate')?.value;
       const type=document.getElementById('fType')?.value;
       const genre=document.getElementById('fGenre')?.value;
       const explicit=document.getElementById('fExplicit')?.value;
       const wantsGuests=document.querySelector('.release-segment.active')?.dataset.value==='yes';
-      if(!title||!artist||!real||!date||!type||!genre||!explicit) return 'Completa los campos obligatorios antes de continuar.';
+      if(!title||!artist||!date||!type||!genre||!explicit) return 'Completa los campos obligatorios antes de continuar.';
       if(wantsGuests && (!releaseInvitedArtists.length || releaseInvitedArtists.some(a=>!a))) return 'Selecciona al menos un artista invitado y completa todos los campos de artistas.';
       const selectedVersions=[...document.querySelectorAll('[data-release-version]:checked')];
       if(!selectedVersions.length) return 'Selecciona al menos una versión del lanzamiento.';
       return '';
     }
 
+    let releaseCurrentStep = 1;
+    const RELEASE_DRAFT_KEY = 'bersz_release_draft';
+
+    function updateReleaseStepUI(step){
+      releaseCurrentStep=step;
+      const steps=[...document.querySelectorAll('.release-step')];
+      steps.forEach((el,i)=>{
+        const active=i===step-1;
+        const complete=i<step-1;
+        el.classList.toggle('active',active);
+        el.classList.toggle('completed',complete);
+      });
+      document.querySelectorAll('[data-release-stage]').forEach(el=>{
+        el.classList.toggle('hidden',Number(el.dataset.releaseStage)!==step);
+      });
+      const btn=document.getElementById('releaseContinueBtn');
+      const cancel=document.querySelector('.release-cancel-btn');
+      if(btn){
+        btn.disabled=false;
+        btn.innerHTML=step===1?'Guardar y continuar <span>→</span>':step===2?'Guardar archivos y continuar <span>→</span>':'Enviar lanzamiento <span>→</span>';
+      }
+      if(cancel) cancel.textContent=step===1?'Cancelar':'Atrás';
+      const form=document.getElementById('releaseSubmitForm');
+      if(form) form.dataset.releaseStep=String(step);
+    }
+
+    function saveReleaseDraft(){
+      const selectedVersions=[...document.querySelectorAll('[data-release-version]:checked')].map(i=>i.dataset.releaseVersion);
+      const draft={
+        title:document.getElementById('fTitle')?.value.trim()||'',
+        artist:document.getElementById('fArtist')?.value.trim()||'',
+        date:document.getElementById('fDate')?.value||'',
+        type:document.getElementById('fType')?.value||'Single',
+        genre:document.getElementById('fGenre')?.value||'Brazilian Funk',
+        explicit:document.getElementById('fExplicit')?.value||'No',
+        invitedArtists:[...releaseInvitedArtists],
+        collaborationType:document.getElementById('fCollabType')?.value||'Featuring',
+        versions:selectedVersions,
+        savedAt:Date.now()
+      };
+      try{localStorage.setItem(RELEASE_DRAFT_KEY,JSON.stringify(draft));}catch(e){}
+      return draft;
+    }
+
+    function validateReleaseFiles(){
+      const wav=document.getElementById('fWav')?.files?.[0];
+      const cover=document.getElementById('fCover')?.files?.[0];
+      if(!wav) return 'Adjunta el master WAV para continuar.';
+      if(!/\.wav$/i.test(wav.name)) return 'El master debe estar en formato WAV.';
+      if(!cover) return 'Adjunta la portada para continuar.';
+      return '';
+    }
+
+    function renderReleaseReview(){
+      const box=document.getElementById('releaseReviewContent');
+      if(!box) return;
+      const versions=[...document.querySelectorAll('[data-release-version]:checked')].map(i=>i.dataset.releaseVersion);
+      const guests=releaseInvitedArtists.filter(Boolean);
+      const rows=[
+        ['Título',document.getElementById('fTitle')?.value.trim()],
+        ['Artista principal',document.getElementById('fArtist')?.value.trim()],
+        ['Fecha',document.getElementById('fDate')?.value],
+        ['Tipo',document.getElementById('fType')?.value],
+        ['Género',document.getElementById('fGenre')?.value],
+        ['Contenido explícito',document.getElementById('fExplicit')?.value],
+        ['Colaboración',guests.length?`${document.getElementById('fCollabType')?.value||'Featuring'} · ${guests.join(', ')}`:'Sin artistas invitados'],
+        ['Versiones',versions.join(', ')||'Original']
+      ];
+      box.innerHTML=rows.map(([label,value])=>`
+        <div style="display:flex;justify-content:space-between;gap:18px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);">
+          <span style="color:#8F8A9B;font-size:11px;">${esc(label)}</span>
+          <strong style="color:#F7F4FB;font-size:11px;text-align:right;">${esc(value||'—')}</strong>
+        </div>`).join('');
+    }
+
+    function handleReleaseCancel(){
+      if(releaseCurrentStep===1){navigateTo('releases');return;}
+      updateReleaseStepUI(releaseCurrentStep-1);
+    }
+
     async function submitRelease() {
       const token=localStorage.getItem(SESSION_KEY);
       if(!token || !user){ showToast('Tu sesión ha expirado.'); return logout(); }
-      const validation=validateReleaseInformation();
       const msg=document.getElementById('submitMsg');
-      if(validation){if(msg)msg.innerHTML=`<div class="toast">${esc(validation)}</div>`;return;}
+
+      if(releaseCurrentStep===1){
+        const validation=validateReleaseInformation();
+        if(validation){if(msg)msg.innerHTML=`<div class="toast">${esc(validation)}</div>`;return;}
+        saveReleaseDraft();
+        if(msg)msg.innerHTML='';
+        updateReleaseStepUI(2);
+        return;
+      }
+
+      if(releaseCurrentStep===2){
+        const validation=validateReleaseFiles();
+        if(validation){if(msg)msg.innerHTML=`<div class="toast">${esc(validation)}</div>`;return;}
+        if(msg)msg.innerHTML='';
+        renderReleaseReview();
+        updateReleaseStepUI(3);
+        return;
+      }
+
+      const validation=validateReleaseInformation();
+      if(validation){if(msg)msg.innerHTML=`<div class="toast">${esc(validation)}</div>`;updateReleaseStepUI(1);return;}
+
       const title=document.getElementById('fTitle')?.value.trim();
       const artist=document.getElementById('fArtist')?.value.trim();
-      const real=document.getElementById('fReal')?.value.trim();
+      const real=document.getElementById('fReal')?.value.trim() || user.realName || user.real_name || user.name || artist;
       const date=document.getElementById('fDate')?.value;
       const type=document.getElementById('fType')?.value || 'Single';
       const version=document.getElementById('fVersion')?.value.trim() || 'Original';
@@ -3908,27 +4059,44 @@
       const explicit=document.getElementById('fExplicit')?.value || 'No';
       const wav=document.getElementById('fWav')?.files?.[0];
       const cover=document.getElementById('fCover')?.files?.[0];
-      const accepted=document.getElementById('fAccept')?.checked;
-      if(!title || !real || !date || !accepted){ if(msg)msg.innerHTML='<div class="toast">Completa los campos obligatorios.</div>'; return; }
-      if(!wav || !cover){ if(msg)msg.innerHTML='<div class="toast">Para enviar el release, adjunta el master WAV y la portada.</div>'; return; }
-      if(!/\.wav$/i.test(wav.name)){ if(msg)msg.innerHTML='<div class="toast">El master debe estar en formato WAV.</div>'; return; }
-      if(msg) msg.innerHTML='<div class="toast">Subiendo lanzamiento…</div>';
-      const btn=document.getElementById('releaseContinueBtn'); if(btn){btn.disabled=true;btn.dataset.defaultLabel=btn.textContent;btn.textContent='Guardando…';}
+
+      if(!wav || !cover){
+        updateReleaseStepUI(2);
+        if(msg)msg.innerHTML='<div class="toast">Faltan archivos. Adjunta el master WAV y la portada.</div>';
+        return;
+      }
+
+      if(msg) msg.innerHTML='<div class="toast">Enviando lanzamiento…</div>';
+      const btn=document.getElementById('releaseContinueBtn');
+      if(btn){btn.disabled=true;btn.textContent='Enviando…';}
+
       try{
-        const payload={action:'submit',token,title,type,version,artist:user.role==='admin'?artist:(user.artist||user.name),real,date,credits,genre,explicit,invitedArtists:releaseInvitedArtists,collaborationType:document.getElementById('fCollabType')?.value||'Featuring',wavFile:await fileToBase64(wav),wavName:wav.name,coverFile:await fileToBase64(cover),coverName:cover.name,coverMime:cover.type||'image/jpeg'};
+        const payload={
+          action:'submit',token,title,type,version,
+          artist:user.role==='admin'?artist:(user.artist||user.name),
+          real,date,credits,genre,explicit,
+          invitedArtists:releaseInvitedArtists,
+          collaborationType:document.getElementById('fCollabType')?.value||'Featuring',
+          wavFile:await fileToBase64(wav),wavName:wav.name,
+          coverFile:await fileToBase64(cover),coverName:cover.name,coverMime:cover.type||'image/jpeg'
+        };
         const response=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
         const result=await response.json();
         if(result.status!=='success') throw new Error(result.message||'No se pudo registrar el lanzamiento.');
         if(msg)msg.innerHTML=`<div class="toast" style="border-color:rgba(34,197,94,.4);">✓ Lanzamiento enviado. ID: <b>${esc(result.id||result.data?.id||'')}</b><br>Estado: Pendiente de revisión.</div>`;
+        try{localStorage.removeItem(RELEASE_DRAFT_KEY);}catch(e){}
         document.getElementById('releaseSubmitForm')?.reset();
         releaseInvitedArtists=[];
         setupReleaseInformationUI();
+        updateReleaseStepUI(1);
         if(user.role!=='admin'){const f=document.getElementById('fArtist');if(f)f.value=user.artist||user.name||'';}
         await loadReleases();
-      }catch(e){ if(msg)msg.innerHTML=`<div class="toast" style="border-color:rgba(239,68,68,.4);">No se pudo enviar: ${esc(e.message)}</div>`; }
-      finally{if(btn){btn.disabled=false;btn.textContent='Guardar y continuar →';}}
+      }catch(e){
+        if(msg)msg.innerHTML=`<div class="toast" style="border-color:rgba(239,68,68,.4);">No se pudo enviar: ${esc(e.message)}</div>`;
+      }finally{
+        if(btn){btn.disabled=false;btn.textContent='Enviar lanzamiento →';}
+      }
     }
-
 
     function renderTables() {
       // Home Table
