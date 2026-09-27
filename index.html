@@ -240,6 +240,19 @@
     }
     .login-msg.hidden { display: none; }
 
+    /* Accesos temporales de desarrollo: no sustituyen la autenticación real. */
+    .demo-login-divider{display:flex;align-items:center;gap:10px;margin:18px 0 12px;color:#777184;font-size:10px;text-transform:uppercase;letter-spacing:.08em;}
+    .demo-login-divider::before,.demo-login-divider::after{content:"";height:1px;flex:1;background:rgba(255,255,255,.08);}
+    .demo-login-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .demo-login-btn{position:relative;display:flex;align-items:center;gap:10px;text-align:left;padding:11px 12px;border:1px solid rgba(255,255,255,.10);border-radius:10px;background:rgba(12,10,18,.82);color:#fff;cursor:pointer;transition:background .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease;}
+    .demo-login-btn:hover{background:rgba(139,61,255,.10);border-color:rgba(139,61,255,.55);box-shadow:0 0 18px rgba(139,61,255,.12);transform:translateY(-1px);}
+    .demo-login-btn:active{transform:scale(.98);}
+    .demo-login-icon{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;border-radius:9px;background:rgba(139,61,255,.16);border:1px solid rgba(139,61,255,.28);color:#b45cff;font-size:16px;}
+    .demo-login-btn strong{display:block;font-size:12px;line-height:1.2;}
+    .demo-login-btn small{display:block;margin-top:3px;color:#888294;font-size:9px;line-height:1.2;}
+    .demo-login-note{margin-top:10px;color:#625c6d;font-size:9px;line-height:1.4;}
+    @media (max-width:520px){.demo-login-buttons{grid-template-columns:1fr;}}
+
     .form-label { display:block; margin-bottom:7px; font-size:12px; color:#D7D3DF; font-weight:700; }
     .upload-box { padding:14px; border:1px dashed rgba(180,92,255,.35); border-radius:12px; background:rgba(139,61,255,.04); }
     .upload-box input[type=file] { width:100%; color:var(--text-muted); font-size:12px; }
@@ -1738,6 +1751,19 @@
       
 
       <div id="googleLogin"></div>
+
+      <div class="demo-login-divider" aria-hidden="true"><span>Acceso rápido de prueba</span></div>
+      <div class="demo-login-buttons">
+        <button class="demo-login-btn demo-login-artist" type="button" onclick="loginAsDemo('artist')">
+          <span class="demo-login-icon">♪</span>
+          <span><strong>Artista</strong><small>Entrar como artista</small></span>
+        </button>
+        <button class="demo-login-btn demo-login-admin" type="button" onclick="loginAsDemo('admin')">
+          <span class="demo-login-icon">⚙</span>
+          <span><strong>Administrador</strong><small>Entrar como administrador</small></span>
+        </button>
+      </div>
+      <div class="demo-login-note">Acceso temporal para pruebas · no reemplaza la autenticación de Google.</div>
       <div id="loginMsg" class="login-msg hidden"></div>
     </div>
   </div>
@@ -2949,6 +2975,21 @@
       toast.textContent = msg;
       container.appendChild(toast);
       setTimeout(() => toast.remove(), 3200);
+    }
+
+
+    // Acceso temporal de desarrollo. No crea una sesión/backend falsa: solamente permite
+    // entrar rápidamente a la interfaz con un rol local para pruebas.
+    function loginAsDemo(role) {
+      const isAdmin = role === 'admin';
+      user = isAdmin
+        ? { role: 'admin', name: 'Administrador', email: 'demo-admin@bersz.local', artist: '' }
+        : { role: 'artist', name: 'Prueba artist', email: 'demo-artist@bersz.local', artist: 'Prueba artist' };
+
+      // No persistimos este acceso como sesión real. Al recargar, volverá a aparecer el login.
+      releases = [];
+      enterPortal();
+      showToast(isAdmin ? 'Modo administrador de prueba activado' : 'Modo artista de prueba activado');
     }
 
     async function handleGoogleCredential(response) {
