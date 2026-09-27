@@ -310,6 +310,7 @@
     .release-file-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
     .release-file-card{position:relative;min-height:190px;padding:18px;border:1px dashed rgba(139,61,255,.35);border-radius:10px;background:rgba(139,61,255,.04);display:flex;flex-direction:column;gap:7px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease;overflow:hidden;}
     .release-file-card:hover{border-color:rgba(180,92,255,.7);background:rgba(139,61,255,.08);transform:translateY(-1px);}
+    .release-file-card.is-dragging{border-color:rgba(180,92,255,.95);background:rgba(139,61,255,.11);box-shadow:0 0 0 2px rgba(139,61,255,.12),0 10px 24px rgba(0,0,0,.22);}
     .release-file-card input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;}
     .release-file-card .release-section-title{margin-bottom:0;}
     .release-file-hint{font-size:10px;color:#8F8A9B;}
@@ -767,6 +768,7 @@
     .badge.approved { background: rgba(34,197,94,0.14); color: var(--green); }
     .badge.rejected { background: rgba(239,68,68,0.14); color: var(--red); }
     .badge.pending { background: rgba(245,158,11,0.14); color: var(--yellow); }
+    .badge.cancelled { background: rgba(148,163,184,0.14); color: #B8C0CF; }
 
     /* BUTTONS */
     .btn {
@@ -3008,7 +3010,31 @@
     }
 
     function mapRelease(r) {
-      return { id:r.ID_Lanzamiento||'', title:r.Titulo_Cancion||'', type:r.Tipo||'Single', version:r.Version||'', artist:r.Artista_Principal||'', real:r.Nombre_Real||'', date:formatDate(r.Fecha_Lanzamiento), credits:r.Colaboradores_Creditos||'', wav:r.URL_WAV||'', cover:r.URL_Portada||'', status:r.Estado||'Pendiente' };
+      return {
+        id: r.ID_Lanzamiento || '',
+        title: r.Titulo_Cancion || '',
+        type: r.Tipo || 'Single',
+        version: r.Version || '',
+        artist: r.Artista_Principal || '',
+        real: r.Nombre_Real || '',
+        date: formatDate(r.Fecha_Lanzamiento),
+        credits: r.Colaboradores_Creditos || '',
+        wav: r.URL_WAV || '',
+        cover: r.URL_Portada || '',
+        status: r.Estado || 'Pendiente',
+        rejectionReason: r.Motivo_Rechazo || r.MotivoRechazo || r.RejectionReason || r.rejectionReason || r.Reason || ''
+      };
+    }
+
+    function releaseStatusClass(status) {
+      if (status === 'Aprobado') return 'approved';
+      if (status === 'Rechazado') return 'rejected';
+      if (status === 'Cancelado') return 'cancelled';
+      return 'pending';
+    }
+
+    function releaseStatusLabel(status) {
+      return status || 'Pendiente';
     }
 
     function formatDate(value) {
@@ -3851,8 +3877,23 @@
       const mine = releases.filter(r => {
         if (user?.role === 'admin') return true;
         return String(r.artist||'').toLowerCase() === String(user?.artist||user?.name||'').toLowerCase();
-      }).filter(r => [r.title,r.artist,r.id,r.status].some(v => String(v||'').toLowerCase().includes(q)));
-      body.innerHTML = mine.length ? mine.map(r => `<tr><td><b>${esc(r.title)}</b><br><small style="color:var(--text-muted);">${esc(r.type)} · ${esc(r.version||'Original')}</small></td><td>${esc(r.artist)}</td><td>${esc(r.date||'—')}</td><td><code>${esc(r.id)}</code></td><td><span class="badge ${r.status==='Aprobado'?'approved':r.status==='Rechazado'?'rejected':'pending'}">${esc(r.status)}</span></td><td><button class="btn btn-secondary" onclick="openDetailsModal('${esc(r.id)}')" type="button">Detalles</button></td></tr>`).join('') : `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted);">No hay lanzamientos registrados.</td></tr>`;
+      }).filter(r => [r.title,r.artist,r.id,r.status,r.rejectionReason].some(v => String(v||'').toLowerCase().includes(q)));
+
+      body.innerHTML = mine.length ? mine.map(r => {
+        const statusClass = releaseStatusClass(r.status);
+        const rejection = r.status === 'Rechazado' && r.rejectionReason ? `
+          <div style="margin-top:7px;padding:8px 10px;border:1px solid rgba(239,68,68,.22);background:rgba(239,68,68,.06);border-radius:8px;color:#ffb4bb;font-size:10px;line-height:1.45;max-width:340px;">
+            <strong style="display:block;color:#fff;margin-bottom:2px;">Motivo del rechazo</strong>${esc(r.rejectionReason)}
+          </div>` : '';
+        return `<tr>
+          <td><b>${esc(r.title)}</b><br><small style="color:var(--text-muted);">${esc(r.type)} · ${esc(r.version||'Original')}</small>${rejection}</td>
+          <td>${esc(r.artist)}</td>
+          <td>${esc(r.date||'—')}</td>
+          <td><code>${esc(r.id)}</code></td>
+          <td><span class="badge ${statusClass}">${esc(releaseStatusLabel(r.status))}</span>${r.status==='Pendiente'||r.status==='En revisión'?'<small style="display:block;color:var(--text-muted);margin-top:3px;">En revisión</small>':''}</td>
+          <td><button class="btn btn-secondary" onclick="openDetailsModal('${esc(r.id)}')" type="button">Detalles</button></td>
+        </tr>`;
+      }).join('') : `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted);">No hay lanzamientos registrados.</td></tr>`;
     }
 
     function fileToBase64(file) {
@@ -3941,10 +3982,28 @@
     }
 
     function setupReleaseFileInputs(){
-      const wav=document.getElementById('fWav');
-      const cover=document.getElementById('fCover');
-      if(wav && !wav.dataset.bound){wav.dataset.bound='1';wav.addEventListener('change',()=>handleReleaseFileSelected('wav',wav.files?.[0]));}
-      if(cover && !cover.dataset.bound){cover.dataset.bound='1';cover.addEventListener('change',()=>handleReleaseFileSelected('cover',cover.files?.[0]));}
+      const bind=(kind,id,acceptCheck)=>{
+        const input=document.getElementById(id);
+        const card=input?.closest('.release-file-card');
+        if(!input) return;
+        if(!input.dataset.bound){
+          input.dataset.bound='1';
+          input.addEventListener('change',()=>handleReleaseFileSelected(kind,input.files?.[0]));
+        }
+        if(card && !card.dataset.dropBound){
+          card.dataset.dropBound='1';
+          ['dragenter','dragover'].forEach(evt=>card.addEventListener(evt,e=>{e.preventDefault();card.classList.add('is-dragging');}));
+          ['dragleave','drop'].forEach(evt=>card.addEventListener(evt,e=>{e.preventDefault();card.classList.remove('is-dragging');}));
+          card.addEventListener('drop',e=>{
+            const file=e.dataTransfer?.files?.[0];
+            if(!file || !acceptCheck(file)) return;
+            try { const dt=new DataTransfer(); dt.items.add(file); input.files=dt.files; } catch(_) {}
+            handleReleaseFileSelected(kind,file);
+          });
+        }
+      };
+      bind('wav','fWav',file=>/\.wav$/i.test(file.name)||file.type==='audio/wav');
+      bind('cover','fCover',file=>/^image\/(png|jpeg|webp)$/i.test(file.type));
     }
 
     function handleReleaseFileSelected(kind,file){
@@ -3977,11 +4036,16 @@
       const date=document.getElementById('fDate')?.value;
       const type=document.getElementById('fType')?.value;
       const genre=document.getElementById('fGenre')?.value;
-      const explicit=document.getElementById('fExplicit')?.value || (document.querySelector('.release-explicit-segment.active')?.dataset.value==='yes'?'Sí':'No');
-      const wantsGuests=document.querySelector('.release-segment.active')?.dataset.value==='yes';
-      if(!title||!artist||!date||!type||!genre||!explicit)return 'Completa los campos obligatorios antes de continuar.';
-      if(wantsGuests&&(!releaseInvitedArtists.length||releaseInvitedArtists.some(a=>!String(a||'').trim())))return 'Selecciona al menos un artista invitado y completa todos los campos de artistas.';
-      if(!document.querySelector('[data-release-version]:checked'))return 'Selecciona al menos una versión del lanzamiento.';
+      const explicitButton=document.querySelector('.release-explicit-segment.active');
+      const explicit=explicitButton?.dataset.value==='yes'?'Sí':'No';
+      const explicitInput=document.getElementById('fExplicit');
+      if(explicitInput) explicitInput.value=explicit;
+      const collabButton=document.querySelector('.release-segment.active');
+      const wantsGuests=collabButton?.dataset.value==='yes';
+
+      if(!title || !artist || !date || !type || !genre) return 'Completa los campos obligatorios antes de continuar.';
+      if(wantsGuests && (!releaseInvitedArtists.length || releaseInvitedArtists.some(a=>!String(a||'').trim()))) return 'Selecciona al menos un artista invitado y completa todos los campos de artistas.';
+      if(!document.querySelector('[data-release-version]:checked')) return 'Selecciona al menos una versión del lanzamiento.';
       return '';
     }
 
@@ -4112,7 +4176,7 @@
           <td>${r.artist}</td>
           <td>${r.date}</td>
           <td><code>${r.id}</code></td>
-          <td><span class="badge ${r.status === 'Aprobado' ? 'approved' : r.status === 'Rechazado' ? 'rejected' : 'pending'}">${r.status}</span></td>
+          <td><span class="badge ${releaseStatusClass(r.status)}">${r.status}</span></td>
           <td><button class="btn btn-secondary" onclick="openDetailsModal('${r.id}')" type="button">Detalles</button></td>
         </tr>
       `).join('');
@@ -4134,15 +4198,16 @@
           <td>${r.type}</td>
           <td>${r.date}</td>
           <td><code>${r.id}</code></td>
-          <td><span class="badge ${r.status === 'Aprobado' ? 'approved' : r.status === 'Rechazado' ? 'rejected' : 'pending'}">${r.status}</span></td>
+          <td><span class="badge ${releaseStatusClass(r.status)}">${esc(r.status)}</span>${r.status==='Pendiente'||r.status==='En revisión'?'<small style="display:block;color:var(--text-muted);margin-top:3px;">En revisión</small>':''}${r.status==='Rechazado'&&r.rejectionReason?`<small style="display:block;color:#ff9da7;margin-top:3px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.rejectionReason)}">${esc(r.rejectionReason)}</small>`:''}</td>
           <td>
-            <div style="display:flex; gap:6px;">
-              <button class="btn btn-secondary" onclick="openDetailsModal('${r.id}')" type="button">Ver</button>
-              <button class="btn btn-secondary" onclick="openEditModal('${r.id}')" type="button">Editar</button>
-              ${r.status === 'Pendiente' ? `
-                <button class="btn btn-success" onclick="openApproveModal('${r.id}')" type="button">Aprobar</button>
-                <button class="btn btn-danger" onclick="promptRejectRelease('${r.id}')" type="button">Rechazar</button>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="btn btn-secondary" onclick="openDetailsModal('${esc(r.id)}')" type="button">Ver</button>
+              <button class="btn btn-secondary" onclick="openEditModal('${esc(r.id)}')" type="button">Editar</button>
+              ${r.status === 'Pendiente' || r.status === 'En revisión' ? `
+                <button class="btn btn-success" onclick="openApproveModal('${esc(r.id)}')" type="button">Aprobar</button>
+                <button class="btn btn-danger" onclick="promptRejectRelease('${esc(r.id)}')" type="button">Rechazar</button>
               ` : ''}
+              ${r.status !== 'Cancelado' ? `<button class="btn btn-secondary" onclick="promptCancelRelease('${esc(r.id)}')" type="button">Cancelar</button>` : ''}
             </div>
           </td>
         </tr>
@@ -4163,7 +4228,7 @@
             <small style="color:var(--text-muted);">${r.artist} · <span style="color:var(--purple-light);">${m.note}</span></small>
           </td>
           <td>${r.date}</td>
-          <td><span class="badge ${r.status === 'Aprobado' ? 'approved' : r.status === 'Rechazado' ? 'rejected' : 'pending'}">${r.status}</span></td>
+          <td><span class="badge ${releaseStatusClass(r.status)}">${r.status}</span></td>
           <td style="font-weight:700; color:${r.status === 'Aprobado' ? '#fff' : 'var(--text-muted)'};">${m.plays} ${r.status === 'Aprobado' ? '▶' : ''}</td>
           <td style="font-weight:700; color:${r.status === 'Aprobado' ? 'var(--purple-light)' : 'var(--text-muted)'};">${m.views} ${r.status === 'Aprobado' ? '👁' : ''}</td>
           <td><button class="btn btn-secondary" onclick="openDetailsModal('${r.id}')" type="button">Detalles</button></td>
@@ -4259,7 +4324,7 @@
               ${a.releases.slice(0, 2).map(r => `
                 <div class="artist-live-track-item">
                   <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; color:#fff;">♫ ${r.title}</span>
-                  <span class="badge ${r.status === 'Aprobado' ? 'approved' : r.status === 'Rechazado' ? 'rejected' : 'pending'}" style="font-size:9px; padding:1px 6px;">${r.status}</span>
+                  <span class="badge ${releaseStatusClass(r.status)}" style="font-size:9px; padding:1px 6px;">${r.status}</span>
                 </div>
               `).join('')}
             </div>
@@ -4328,75 +4393,140 @@
       `).join('');
     }
 
-    // ACCIONES DE REVISIÓN (MODAL NATIVO ROBUSTO - SIN WINDOW.CONFIRM)
+    // ACCIONES DE REVISIÓN — persistidas mediante la API existente
+    async function persistReleaseStatus(id, status, rejectionReason='') {
+      const token = localStorage.getItem(SESSION_KEY);
+      if (!token || user?.role !== 'admin') throw new Error('No tienes permisos de administrador.');
+      const payload = {
+        action: 'updateStatus',
+        token,
+        id,
+        status,
+        rejectionReason: status === 'Rechazado' ? rejectionReason : '',
+        reason: status === 'Rechazado' ? rejectionReason : ''
+      };
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+      if (result.status !== 'success') throw new Error(result.message || 'No se pudo actualizar el estado.');
+      await loadReleases();
+      return result;
+    }
+
     function openApproveModal(id) {
       const r = releases.find(x => x.id === id);
       if (!r) return;
       openModal('Aprobar Lanzamiento para Distribución', `
-        <div style="text-align:center; padding: 10px 0 6px;">
-          <div style="width: 58px; height: 58px; border-radius: 16px; background: rgba(34, 197, 94, 0.16); color: var(--green); display: grid; place-items: center; margin: 0 auto 16px; font-size: 26px; border: 1px solid rgba(34, 197, 94, 0.35); box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);">✓</div>
-          <h4 style="font-size: 16px; color: #fff; margin-bottom: 6px;">¿Aprobar fonograma "${r.title}"?</h4>
-          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 18px;">Artista: <b style="color:#fff;">${r.artist}</b> · ID: <code>${r.id}</code></p>
-          
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; margin-bottom: 20px; text-align: left; font-size: 12px; display:flex; flex-direction:column; gap:8px;">
-            <div style="display:flex; justify-content:space-between;">
-              <span style="color:var(--text-muted);">Formato y versión:</span>
-              <span style="color:#fff; font-weight:600;">${r.type} · ${r.version}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between;">
-              <span style="color:var(--text-muted);">Estado actual:</span>
-              <span class="badge pending">Pendiente</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="color:var(--text-muted);">Acción:</span>
-              <span class="badge approved" style="display:flex; align-items:center; gap:4px;"><span style="width:6px; height:6px; background:var(--green); border-radius:50%; display:inline-block;"></span> Aprobar y Distribuir</span>
-            </div>
+        <div style="text-align:center; padding:10px 0 6px;">
+          <div style="width:58px;height:58px;border-radius:16px;background:rgba(34,197,94,.16);color:var(--green);display:grid;place-items:center;margin:0 auto 16px;font-size:26px;border:1px solid rgba(34,197,94,.35);box-shadow:0 0 20px rgba(34,197,94,.2);">✓</div>
+          <h4 style="font-size:16px;color:#fff;margin-bottom:6px;">¿Aprobar fonograma "${esc(r.title)}"?</h4>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">Artista: <b style="color:#fff;">${esc(r.artist)}</b> · ID: <code>${esc(r.id)}</code></p>
+          <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;font-size:12px;display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;justify-content:space-between;gap:10px;"><span style="color:var(--text-muted);">Formato y versión:</span><span style="color:#fff;font-weight:600;">${esc(r.type)} · ${esc(r.version)}</span></div>
+            <div style="display:flex;justify-content:space-between;gap:10px;"><span style="color:var(--text-muted);">Estado actual:</span><span class="badge ${releaseStatusClass(r.status)}">${esc(r.status)}</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><span style="color:var(--text-muted);">Acción:</span><span class="badge approved">✓ Aprobar y Distribuir</span></div>
           </div>
-
-          <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <div id="approveReleaseMsg" style="min-height:18px;margin-bottom:10px;font-size:11px;color:var(--text-muted);"></div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;">
             <button class="btn btn-secondary" onclick="closeAdminModal()" type="button">Cancelar</button>
-            <button class="btn btn-success" onclick="executeApproveRelease('${r.id}')" type="button">Confirmar Aprobación</button>
+            <button id="confirmApproveBtn" class="btn btn-success" onclick="executeApproveRelease('${esc(r.id)}')" type="button">Confirmar Aprobación</button>
           </div>
         </div>
       `);
     }
 
-    function executeApproveRelease(id) {
+    async function executeApproveRelease(id) {
       const r = releases.find(x => x.id === id);
       if (!r) return;
-      r.status = 'Aprobado';
-      addNotification('approved', 'Lanzamiento aprobado', `${r.title} · ${r.artist}`, r.id);
-      closeAdminModal();
-      refreshAll();
-      showToast(`✓ Lanzamiento "${r.title}" aprobado y remitido a distribución digital`);
+      const btn=document.getElementById('confirmApproveBtn');
+      const msg=document.getElementById('approveReleaseMsg');
+      if(btn){btn.disabled=true;btn.textContent='Guardando…';}
+      try{
+        await persistReleaseStatus(id,'Aprobado');
+        addNotification('approved','Lanzamiento aprobado',`${r.title} · ${r.artist}`,r.id);
+        closeAdminModal();
+        showToast(`✓ Lanzamiento "${r.title}" aprobado y remitido a distribución digital`);
+      }catch(e){
+        if(msg)msg.textContent=e.message;
+        if(btn){btn.disabled=false;btn.textContent='Confirmar Aprobación';}
+      }
     }
 
-    function approveRelease(id) {
-      openApproveModal(id);
-    }
+    function approveRelease(id) { openApproveModal(id); }
 
     function promptRejectRelease(id) {
       const r = releases.find(x => x.id === id);
       if (!r) return;
       openModal('Rechazar lanzamiento', `
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Especifica el motivo del rechazo para <b>${r.title}</b>:</p>
-        <textarea id="rejectReason" placeholder="Ej. El audio no cumple con los requisitos de masterización..." style="width:100%; height:90px; padding:10px; background:#08070D; border:1px solid var(--border); border-radius:8px; color:#fff; font-size:12px; margin-bottom:16px;"></textarea>
-        <div style="display:flex; justify-content:flex-end; gap:8px;">
-          <button class="btn btn-secondary" onclick="closeAdminModal()" type="button">Cancelar</button>
-          <button class="btn btn-danger" onclick="confirmRejectRelease('${r.id}')" type="button">Confirmar rechazo</button>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <p style="font-size:13px;color:var(--text-muted);margin:0;">Especifica el motivo del rechazo para <b style="color:#fff;">${esc(r.title)}</b>.</p>
+          <div>
+            <label for="rejectReason" style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:6px;">Motivo del rechazo *</label>
+            <textarea id="rejectReason" placeholder="Ej. La portada no cumple con los requisitos." style="width:100%;min-height:100px;resize:vertical;padding:10px;background:#08070D;border:1px solid var(--border);border-radius:8px;color:#fff;font-size:12px;line-height:1.45;"></textarea>
+          </div>
+          <div id="rejectReleaseMsg" style="min-height:18px;color:#ff9da7;font-size:11px;"></div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;">
+            <button class="btn btn-secondary" onclick="closeAdminModal()" type="button">Cancelar</button>
+            <button id="confirmRejectBtn" class="btn btn-danger" onclick="confirmRejectRelease('${esc(r.id)}')" type="button">Rechazar lanzamiento</button>
+          </div>
+        </div>
+      `);
+      setTimeout(()=>document.getElementById('rejectReason')?.focus(),50);
+    }
+
+    async function confirmRejectRelease(id) {
+      const r = releases.find(x => x.id === id);
+      if (!r) return;
+      const reason = document.getElementById('rejectReason')?.value.trim();
+      const msg=document.getElementById('rejectReleaseMsg');
+      if(!reason){if(msg)msg.textContent='Escribe el motivo del rechazo antes de continuar.';return;}
+      const btn=document.getElementById('confirmRejectBtn');
+      if(btn){btn.disabled=true;btn.textContent='Guardando…';}
+      try{
+        await persistReleaseStatus(id,'Rechazado',reason);
+        addNotification('rejected','Lanzamiento rechazado',`${r.title} · Motivo: ${reason}`,r.id);
+        closeAdminModal();
+        showToast('✓ Lanzamiento rechazado');
+      }catch(e){
+        if(msg)msg.textContent=e.message;
+        if(btn){btn.disabled=false;btn.textContent='Rechazar lanzamiento';}
+      }
+    }
+
+    function promptCancelRelease(id){
+      const r=releases.find(x=>x.id===id);
+      if(!r || r.status==='Cancelado') return;
+      openModal('Cancelar lanzamiento',`
+        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px;">
+          <div style="width:52px;height:52px;border-radius:14px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ff7f8a;display:grid;place-items:center;font-size:22px;">×</div>
+          <h4 style="font-size:16px;color:#fff;margin:0;">¿Cancelar lanzamiento?</h4>
+          <p style="font-size:12px;color:var(--text-muted);line-height:1.5;margin:0;">Esta acción cambiará el estado de <b style="color:#fff;">${esc(r.title)}</b> a <b style="color:#fff;">Cancelado</b>. El registro no será eliminado.</p>
+          <div id="cancelReleaseMsg" style="min-height:18px;color:#ff9da7;font-size:11px;"></div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;width:100%;">
+            <button class="btn btn-secondary" onclick="closeAdminModal()" type="button">Volver</button>
+            <button id="confirmCancelBtn" class="btn btn-danger" onclick="confirmCancelRelease('${esc(r.id)}')" type="button">Sí, cancelar lanzamiento</button>
+          </div>
         </div>
       `);
     }
 
-    function confirmRejectRelease(id) {
-      const r = releases.find(x => x.id === id);
-      const reason = document.getElementById('rejectReason')?.value.trim() || 'No cumple con los requisitos mínimos.';
-      if (r) {
-        r.status = 'Rechazado';
-        addNotification('rejected', 'Lanzamiento rechazado', `${r.title} · Motivo: ${reason}`, r.id);
+    async function confirmCancelRelease(id){
+      const r=releases.find(x=>x.id===id);
+      if(!r)return;
+      const btn=document.getElementById('confirmCancelBtn');
+      const msg=document.getElementById('cancelReleaseMsg');
+      if(btn){btn.disabled=true;btn.textContent='Guardando…';}
+      try{
+        await persistReleaseStatus(id,'Cancelado');
+        addNotification('rejected','Lanzamiento cancelado',`${r.title} · ${r.artist}`,r.id);
         closeAdminModal();
-        refreshAll();
-        showToast('✓ Lanzamiento rechazado');
+        showToast('✓ Lanzamiento cancelado');
+      }catch(e){
+        if(msg)msg.textContent=e.message;
+        if(btn){btn.disabled=false;btn.textContent='Sí, cancelar lanzamiento';}
       }
     }
 
@@ -4487,18 +4617,25 @@
     function openDetailsModal(id) {
       const r = releases.find(x => x.id === id);
       if (!r) return;
+      const rejectionBlock = r.status === 'Rechazado' && r.rejectionReason ? `
+        <div style="margin-top:2px;padding:12px;border:1px solid rgba(239,68,68,.25);background:rgba(239,68,68,.06);border-radius:10px;">
+          <div style="font-size:11px;color:#ffb4bb;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;">Motivo del rechazo</div>
+          <div style="font-size:12px;color:#fff;line-height:1.5;">${esc(r.rejectionReason)}</div>
+        </div>` : '';
       openModal('Detalles del lanzamiento', `
         <div style="display:flex; flex-direction:column; gap:12px; font-size:13px;">
-          <div><b style="color:var(--text-muted);">Título:</b> <span style="font-size:15px; font-weight:700;">${r.title}</span></div>
-          <div><b style="color:var(--text-muted);">Artista Principal:</b> ${r.artist}</div>
-          <div><b style="color:var(--text-muted);">Tipo:</b> ${r.type}</div>
-          <div><b style="color:var(--text-muted);">Versión:</b> ${r.version}</div>
-          <div><b style="color:var(--text-muted);">Fecha de Salida:</b> ${r.date}</div>
-          <div><b style="color:var(--text-muted);">ID de Catálogo:</b> <code>${r.id}</code></div>
-          <div><b style="color:var(--text-muted);">Estado:</b> <span class="badge ${r.status === 'Aprobado' ? 'approved' : r.status === 'Rechazado' ? 'rejected' : 'pending'}">${r.status}</span></div>
-          <div style="margin-top:10px; padding-top:14px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px;">
+          <div><b style="color:var(--text-muted);">Título:</b> <span style="font-size:15px; font-weight:700;">${esc(r.title)}</span></div>
+          <div><b style="color:var(--text-muted);">Artista Principal:</b> ${esc(r.artist)}</div>
+          <div><b style="color:var(--text-muted);">Tipo:</b> ${esc(r.type)}</div>
+          <div><b style="color:var(--text-muted);">Versión:</b> ${esc(r.version)}</div>
+          <div><b style="color:var(--text-muted);">Fecha de Salida:</b> ${esc(r.date)}</div>
+          <div><b style="color:var(--text-muted);">ID de Catálogo:</b> <code>${esc(r.id)}</code></div>
+          <div><b style="color:var(--text-muted);">Estado:</b> <span class="badge ${releaseStatusClass(r.status)}">${esc(r.status)}</span></div>
+          ${rejectionBlock}
+          <div style="margin-top:10px; padding-top:14px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap;">
             <button class="btn btn-secondary" onclick="closeAdminModal()" type="button">Cerrar</button>
-            <button class="btn btn-primary" onclick="closeAdminModal(); openEditModal('${r.id}');" type="button">Editar</button>
+            ${user?.role==='admin' && r.status!=='Cancelado' ? `<button class="btn btn-secondary" onclick="closeAdminModal(); promptCancelRelease('${esc(r.id)}');" type="button">Cancelar lanzamiento</button>` : ''}
+            <button class="btn btn-primary" onclick="closeAdminModal(); openEditModal('${esc(r.id)}');" type="button">Editar</button>
           </div>
         </div>
       `);
@@ -4564,7 +4701,7 @@
                 <b>${r.title}</b><br>
                 <small style="color:var(--text-muted);">${r.type} · ${r.date}</small>
               </div>
-              <span class="badge ${r.status === 'Aprobado' ? 'approved' : r.status === 'Rechazado' ? 'rejected' : 'pending'}">${r.status}</span>
+              <span class="badge ${releaseStatusClass(r.status)}">${r.status}</span>
             </div>
           `).join('')}
         </div>
@@ -4640,10 +4777,19 @@
       renderNotifications();
     }
 
+    let releaseStatusPollTimer = null;
+    function startReleaseStatusPolling(){
+      if(releaseStatusPollTimer) clearInterval(releaseStatusPollTimer);
+      releaseStatusPollTimer=setInterval(()=>{
+        if(localStorage.getItem(SESSION_KEY) && user) loadReleases();
+      },30000);
+    }
+
     // INICIALIZACIÓN
     document.addEventListener('DOMContentLoaded', () => {
       // Event listeners para botones y navegación
       setupReleaseInformationUI();
+      startReleaseStatusPolling();
       document.getElementById('btnLogout').addEventListener('click', logout);
       document.getElementById('btnHamburger').addEventListener('click', () => {
         document.getElementById('sidebar').classList.toggle('open');
