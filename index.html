@@ -780,14 +780,16 @@
             return;
           }
 
-          // El único panel incluido en esta copia es una demo con datos locales y roles simulados.
-          // No se usa como sesión real ni se almacena el ID token o un supuesto estado de sesión.
-          var roleNames = { artist: "artista", admin: "administración" };
-          showNotice(
-            "info",
-            "Identidad verificada · " + roleNames[role],
-            "El backend confirmó tu rol, pero esta copia solo incluye el panel de demostración local. No se abrió como sesión real para evitar mostrar datos ficticios como información de tu cuenta."
-          );
+          // El backend devuelve una sesión firmada; guardar solo el token de sesión (nunca el ID token de Google).
+          if (!result.token || !result.user) {
+            throw new Error("El backend validó tu identidad, pero no devolvió la sesión y el perfil necesarios. Revisa el despliegue de Apps Script.");
+          }
+          var sessionUser = result.user;
+          sessionUser.role = role;
+          sessionStorage.setItem("bzr_session_token", result.token);
+          sessionStorage.setItem("bzr_session_user", JSON.stringify(sessionUser));
+          window.location.replace("portal.html");
+          return;
         } catch (error) {
           showNotice(
             "error",
