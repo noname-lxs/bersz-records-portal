@@ -4,19 +4,15 @@ BERSZ RECORDS — PORTAL CON ACTUALIZACIÓN DE MARKETING
 ARCHIVOS
 --------
 index.html ............ Acceso y formulario de solicitud de ingreso.
-portal-demo.html ...... Portal de demostración para administración y artistas.
+portal-demo.html ...... Interfaz heredada; se redirige al aviso de panel no disponible.
 brand/ ................ Logos del portal.
 favicon.png ........... Icono de la pestaña.
 
 VISTA LOCAL
 -----------
-Para probar todas las páginas juntas, sirve esta carpeta desde un mismo origen
-web (por ejemplo, localhost) y abre index.html. No uses file://: el navegador no
-garantiza que el formulario de acceso y el portal puedan compartir el estado.
-
-La demo conserva los cambios en el almacenamiento local del navegador. Las
-solicitudes del formulario de ingreso aparecen en «Solicitudes de ingreso»;
-ambas páginas deben abrirse desde el mismo origen y navegador.
+Sirve la carpeta desde un origen web y abre index.html. Google Identity
+Services requiere que el origen de producción esté autorizado en el cliente
+OAuth. La solicitud de acceso se envía al Web App de Apps Script.
 
 CAMBIOS PRINCIPALES
 -------------------
@@ -64,26 +60,26 @@ ACTUALIZACIÓN 2.9.1 (CORRECCIONES)
   «Generar WAV de prueba real» se identifican como audio de prueba
   (nombre «..._PRUEBA_SINTETICA.wav») y nunca como máster original.
 
-LÍMITES DE ESTA DEMO
---------------------
-- Los datos y cambios se guardan en este navegador; no se envían a un servidor
-  ni se sincronizan con otros dispositivos.
-- La solicitud de ingreso no envía correo. La decisión se revisa dentro de la
-  demo y no crea una cuenta real automáticamente.
+ESTADO DE INTEGRACIÓN
+---------------------
 - «Continuar con Google» usa Google Identity Services y envía el ID token al
-  backend existente para validar el acceso y recibir el rol. Esta copia todavía
-  no tiene un panel de producción conectado: tras una validación correcta, no
-  abre el panel local de demostración como si fuera una sesión real.
-- La integración no conserva el ID token ni crea una sesión persistente en el
-  navegador. El panel de demostración continúa usando únicamente datos locales.
-- Archivar una campaña la quita de la gestión activa del portal; no elimina un
-  video publicado en TikTok.
-- Aprobar una retirada de vídeo lo quita de las promociones activas del portal.
-  El portal no está conectado a TikTok: la retirada en TikTok se hace a mano
-  desde la cuenta que lo publicó.
-- El soporte no es un chat en tiempo real: los mensajes se guardan en este
-  navegador y el equipo responde desde el panel de Bersz Admin.
-- La demo usa datos de ejemplo. Sus roles y permisos no son un control de acceso
-  seguro para un sitio con datos reales.
-- El portal carga tipografías y librerías externas; necesita conexión a
-  internet para su vista completa.
+  backend para validarlo. El token no se conserva en el navegador.
+- «Solicitar acceso» envía los datos al endpoint submitAccessRequest y solo
+  muestra éxito cuando Apps Script confirma status=success.
+- El backend disponible ofrece login, me, listReleases, submit, updateStatus,
+  submitAccessRequest y health. Esta copia solo conecta login y solicitud de
+  acceso.
+- El backend actual permite acceso a artistas y administración; no admite
+  Marketing Staff. La sesión emitida dura seis horas, pero no hay un endpoint
+  de cierre o revocación de sesión.
+- El backend no ofrece operaciones para cuentas y perfiles, marketing,
+  notificaciones, soporte, adelantos, historial completo o lectura privada y
+  descarga de Drive. Esas funciones siguen pendientes.
+- La pantalla portal-demo.html aún conserva el código heredado y los datos de
+  demostración, pero ahora redirige a un aviso y no ejecuta el panel. No se debe
+  quitar esa protección hasta sustituir las operaciones locales por endpoints
+  autorizados en el servidor.
+- No se ejecutó setup(), no se escribieron datos reales y no se desplegaron
+  cambios. Las pruebas contra el Web App usaron solicitudes deliberadamente
+  inválidas que el backend rechazó.
+- El portal carga tipografías y bibliotecas externas; requiere internet.
