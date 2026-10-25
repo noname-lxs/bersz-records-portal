@@ -591,16 +591,9 @@
   </head>
 
   <body>
-    <!-- Pantalla de carga: solo aparece al entrar en modo demo -->
-    <div id="transition" class="transition in" role="status" aria-live="polite" hidden>
-      <img src="bersz-logo.png" alt="" />
-      <div class="track"><i></i></div>
-      <p>Preparando el entorno de demostración…</p>
-    </div>
-
     <main class="wrap">
       <section class="hero in" aria-labelledby="title">
-        <img src="bersz-logo.png" alt="Bersz Records" />
+        <img src="brand/bersz-logo.png" alt="Bersz Records" />
         <h1 id="title">BERSZ RECORDS</h1>
         <p class="kicker">Portal exclusivo para artistas de Bersz Records.</p>
         <p class="sub">Tu música, tus lanzamientos y tu carrera, en un solo lugar.</p>
@@ -636,25 +629,6 @@
 
         <div id="notice" hidden></div>
 
-        <div class="sep"><span></span>o<span></span></div>
-
-        <button type="button" id="demo-btn" class="btn btn-demo">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path
-              d="M9.9 15.5A2 2 0 0 0 8.5 14.1l-6.1-1.5a.5.5 0 0 1 0-1L8.5 10A2 2 0 0 0 9.9 8.6l1.5-6.1a.5.5 0 0 1 1 0l1.5 6.1a2 2 0 0 0 1.4 1.4l6.1 1.5a.5.5 0 0 1 0 1l-6.1 1.5a2 2 0 0 0-1.4 1.4l-1.5 6.1a.5.5 0 0 1-1 0z"
-            />
-          </svg>
-          Entrar en modo demo
-        </button>
-        <p class="micro">Datos ficticios · sin acceso a información real</p>
       </section>
 
       <section class="card-flat in in-3">
@@ -682,25 +656,12 @@
 
     <script>
       /* ==========================================================
-         BERSZ RECORDS — comportamiento de la pantalla de acceso
-         (sin dependencias: funciona solo con abrir el archivo)
+         BERSZ RECORDS — acceso y solicitud de ingreso
          ========================================================== */
-      var DEMO_URL = "portal-demo.html";
       var GOOGLE_CLIENT_ID = "1093619924656-ajhddorlqsc2ahm11bhm26kfn1etgbj1.apps.googleusercontent.com";
       var GOOGLE_LOGIN_URL = "https://script.google.com/macros/s/AKfycbwSlMa6foptS0880GvOf_9Awj6L1-nB_y7NG_ohB00JTHEGj_IRTnsQIv0cNaDQQhQSzg/exec";
       var googleReady = false;
       var googleAttemptTimer = null;
-
-      /* --- Pantalla de carga + entrada al portal demo --- */
-      var demoBtn = document.getElementById("demo-btn");
-      var transition = document.getElementById("transition");
-      demoBtn.addEventListener("click", function () {
-        if (transition.hidden === false) return;
-        transition.hidden = false;
-        setTimeout(function () {
-          window.location.assign(DEMO_URL);
-        }, 900);
-      });
 
       /* --- Avisos y acceso con Google Identity Services --- */
       var notice = document.getElementById("notice");
@@ -729,6 +690,15 @@
       function hideNotice() {
         notice.hidden = true;
         notice.replaceChildren();
+      }
+
+      if (window.location.hash === "#portal-no-disponible") {
+        showNotice(
+          "info",
+          "Panel no disponible",
+          "Esta copia todavía no tiene conectadas las funciones del panel a datos reales. No se abrió el portal de demostración."
+        );
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
       }
 
       var googleBtn = document.getElementById("google-btn");
@@ -804,7 +774,7 @@
           }
 
           var role = extractRole(result);
-          var supportedRoles = ["artist", "admin", "marketing", "staff"];
+        var supportedRoles = ["artist", "admin"];
           if (!role || supportedRoles.indexOf(role) === -1) {
             showNotice("error", "Rol sin acceso al portal", "El backend no devolvió un rol reconocido. Contacta a Bersz Records.");
             return;
@@ -812,7 +782,7 @@
 
           // El único panel incluido en esta copia es una demo con datos locales y roles simulados.
           // No se usa como sesión real ni se almacena el ID token o un supuesto estado de sesión.
-          var roleNames = { artist: "artista", admin: "administración", marketing: "Marketing Staff", staff: "equipo" };
+          var roleNames = { artist: "artista", admin: "administración" };
           showNotice(
             "info",
             "Identidad verificada · " + roleNames[role],
@@ -978,9 +948,9 @@
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>' +
             '<div class="done" role="status">' +
             ICON_CHECK +
-            "<h2>¡Solicitud completada!</h2>" +
-            "<p>Gracias por tu interés en formar parte de Bersz Records. Tu solicitud quedó registrada en la demostración local para que el equipo pueda revisarla.</p>" +
-            '<p class="fine">El registro local no envía correos ni garantiza la aceptación. El equipo evaluará cada propuesta individualmente.</p>' +
+            "<h2>¡Solicitud enviada!</h2>" +
+            "<p>Gracias por tu interés en formar parte de Bersz Records. El backend confirmó que tu solicitud quedó registrada para revisión.</p>" +
+            '<p class="fine">El equipo evaluará tu propuesta. Enviar la solicitud no garantiza su aceptación.</p>' +
             '<div class="actions" style="align-items:center"><button type="button" class="btn-solid" data-close>Volver al inicio de sesión</button></div>' +
             "</div>";
           return;
@@ -990,7 +960,7 @@
           '<button type="button" class="close" data-close aria-label="Cerrar">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>' +
           '<h2 id="req-title">Solicitud para unirte a Bersz Records</h2>' +
-          "<p>Completa tus datos para que nuestro equipo pueda conocer tu proyecto musical. Revisaremos tu solicitud y te comunicaremos nuestra decisión por correo electrónico.</p>";
+          "<p>Completa tus datos para que nuestro equipo pueda conocer tu proyecto musical y revisar tu propuesta.</p>";
 
         FIELDS.forEach(function (f) {
           var msg =
@@ -1054,7 +1024,7 @@
         });
       }
 
-      function submit() {
+      async function submit() {
         if (busy) return;
         errors = validate(form);
         failure = null;
@@ -1064,43 +1034,45 @@
         }
         busy = true;
         render();
-        setTimeout(function () {
-          try {
-            if (window.location.protocol === "file:") {
-              throw new Error("Abre index.html y portal-demo.html desde el mismo origen web (por ejemplo, localhost). file:// no garantiza que ambas páginas compartan el almacenamiento.");
-            }
-            var key = "BERSZ_PORTAL_V2";
-            var raw = window.localStorage.getItem(key);
-            var state = raw ? JSON.parse(raw) : {};
-            if (!state || typeof state !== "object" || Array.isArray(state)) {
-              throw new Error("El estado local de la demo no tiene un formato válido; no se modificó.");
-            }
-            var now = new Date().toISOString();
-            var id = "artist-access-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
-            var record = {
-              id: id,
+        var controller = new AbortController();
+        var requestTimeout = window.setTimeout(function () {
+          controller.abort();
+        }, 30000);
+        try {
+          var resultResponse = await fetch(GOOGLE_LOGIN_URL, {
+            method: "POST",
+            mode: "cors",
+            redirect: "follow",
+            headers: { "Content-Type": "text/plain;charset=UTF-8" },
+            body: JSON.stringify({
+              action: "submitAccessRequest",
               artistName: String(form.artistName || "").trim(),
               fullName: String(form.fullName || "").trim(),
               email: String(form.email || "").trim(),
               tiktok: normalizeTiktok(form.tiktok),
               spotify: String(form.spotify || "").trim(),
-              projectPresentation: String(form.projectPresentation || "").trim(),
-              submittedAt: now,
-              status: "Pendiente",
-              history: [{ status: "Pendiente", date: now, actor: "Solicitud pública", reason: "" }],
-              isDemo: true
-            };
-            var requests = Array.isArray(state.artistAccessRequests) ? state.artistAccessRequests : [];
-            window.localStorage.setItem(key, JSON.stringify(Object.assign({}, state, { artistAccessRequests: [record].concat(requests) })));
-            busy = false;
-            done = true;
-            failure = null;
-          } catch (error) {
-            busy = false;
-            failure = error && error.message ? error.message : "No se pudo guardar la solicitud en el almacenamiento local. No se registró.";
+              projectPresentation: String(form.projectPresentation || "").trim()
+            }),
+            signal: controller.signal
+          });
+          if (!resultResponse.ok) throw new Error("El servicio respondió con HTTP " + resultResponse.status + ".");
+          var result = await resultResponse.json();
+          if (!result || result.status !== "success") {
+            throw new Error((result && (result.message || result.error)) || "El backend no confirmó el registro de la solicitud.");
           }
+          done = true;
+          failure = null;
+        } catch (error) {
+          failure = error && error.name === "AbortError"
+            ? "La solicitud tardó demasiado. No podemos confirmar si se registró; revisa con Bersz Records antes de enviarla otra vez."
+            : error && error.message
+              ? error.message
+              : "No se pudo confirmar el registro de la solicitud.";
+        } finally {
+          window.clearTimeout(requestTimeout);
+          busy = false;
           render();
-        }, 600);
+        }
       }
 
       function openRequest() {
