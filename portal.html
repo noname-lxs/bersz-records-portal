@@ -1,226 +1,155 @@
 <!doctype html>
 <html lang="es" class="dark">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0A0A0D">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>Bersz Records — Portal privado</title>
-  <link rel="icon" href="favicon.png" type="image/png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    :root{color-scheme:dark;--bg:#0A0A0D;--card:#17171d;--gray:#1E1E24;--violet:#7138F5;--lav:#B69AFF;--white:#fff;--muted:#a4a1af;--border:rgba(255,255,255,.1);--good:#4ec983;--bad:#ff737d;--radius:18px}
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse 75% 35% at 50% -10%,rgba(113,56,245,.18),transparent 75%),var(--bg);color:var(--white);font-family:Archivo,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-    button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}
-    .shell{max-width:1180px;margin:auto;padding:28px 22px 50px}.top{display:flex;justify-content:space-between;align-items:center;gap:18px;padding-bottom:24px;border-bottom:1px solid var(--border)}
-    .brand{display:flex;align-items:center;gap:14px;min-width:0}.brand img{width:46px;height:46px;object-fit:contain}.brand h1{font-size:18px;margin:0;font-weight:900;letter-spacing:-.03em}.brand p{margin:4px 0 0;color:var(--muted);font-size:12px}
-    .top-actions{display:flex;align-items:center;gap:10px}.pill{border:1px solid var(--border);background:rgba(255,255,255,.04);border-radius:999px;padding:9px 13px;font-size:12px;color:#e5e1ef}
-    .btn{border:0;border-radius:999px;padding:11px 16px;font-size:13px;font-weight:700;transition:filter .15s,transform .15s}.btn:hover{filter:brightness(1.1)}.btn:active{transform:scale(.98)}.primary{background:var(--violet);color:#fff}.secondary{background:var(--gray);color:#fff;border:1px solid var(--border)}.danger{background:rgba(255,115,125,.12);border:1px solid rgba(255,115,125,.35);color:#ffb8bd}.small{font-size:11px;padding:8px 11px}
-    .welcome{margin:30px 0 22px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--lav);font-weight:800}.welcome h2{font-size:clamp(24px,4vw,34px);letter-spacing:-.04em;margin:8px 0}.welcome p{color:var(--muted);margin:0;font-size:14px}
-    .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}.stat,.panel{border:1px solid var(--border);border-radius:var(--radius);background:rgba(23,23,29,.88);padding:20px}.stat label{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;margin-top:9px;font-size:27px;letter-spacing:-.04em}
-    .layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(270px,1fr);gap:16px;align-items:start}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.panel-head h3{margin:0;font-size:16px}.panel-head p{margin:5px 0 0;color:var(--muted);font-size:12px}
-    .table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:12px;min-width:500px}th{text-align:left;color:var(--muted);font-weight:600;padding:11px 9px;border-bottom:1px solid var(--border)}td{padding:13px 9px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}tbody tr:last-child td{border-bottom:0}
-    .status{display:inline-block;border:1px solid var(--border);background:rgba(255,255,255,.04);padding:5px 8px;border-radius:999px;font-size:10px;white-space:nowrap}.status.pending{color:#f6d58b;border-color:rgba(246,213,139,.25)}.status.approved{color:#78e2a7;border-color:rgba(120,226,167,.25)}.status.rejected{color:#ff939c;border-color:rgba(255,147,156,.25)}
-    .row-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.muted{color:var(--muted)}.empty{padding:26px 10px;text-align:center;color:var(--muted);font-size:13px}.message{display:none;margin:16px 0;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.45;white-space:pre-wrap}.message.show{display:block}.message.error{background:rgba(255,115,125,.1);border:1px solid rgba(255,115,125,.3);color:#ffb8bd}.message.info{background:rgba(182,154,255,.09);border:1px solid rgba(182,154,255,.28);color:#ded2ff}.message.success{background:rgba(78,201,131,.09);border:1px solid rgba(78,201,131,.28);color:#a2f0c1}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{margin-bottom:13px}.field.full{grid-column:1/-1}.field label{display:block;font-size:12px;font-weight:600;margin-bottom:7px;color:#e6e1f0}.field input,.field select,.field textarea{width:100%;border:1px solid var(--border);background:#0e0e13;border-radius:10px;color:#fff;padding:11px 12px;outline:none;font-size:13px}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--lav);box-shadow:0 0 0 3px rgba(182,154,255,.12)}.field textarea{resize:vertical;min-height:80px}.field .help{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.45}
-    .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:7px}@keyframes spin{to{transform:rotate(360deg)}}
-    footer{text-align:center;color:#777482;font-size:11px;margin-top:30px}
-    @media(max-width:820px){.layout{grid-template-columns:1fr}.top{align-items:flex-start}.stats{gap:9px}.stat{padding:15px}.stat strong{font-size:23px}}
-    @media(max-width:520px){.shell{padding:18px 13px 32px}.top{flex-direction:column}.top-actions{width:100%;justify-content:space-between}.stats{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.panel{padding:15px}.brand img{width:38px;height:38px}}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A0A0D">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Bersz Records — Panel de control</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0a0a0d;--surface:#111116;--surface-2:#17171e;--surface-3:#1e1e27;--violet:#7138f5;--violet-hover:#8050ff;--lavender:#b69aff;--white:#fff;--muted:#9b99a8;--soft:#c8c4d1;--line:rgba(255,255,255,.085);--green:#72dca1;--amber:#f2c879;--red:#ff8e99;--radius:18px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(900px 420px at 65% -180px,rgba(113,56,245,.18),transparent 72%),var(--bg);font-family:Archivo,system-ui,sans-serif;color:var(--white);-webkit-font-smoothing:antialiased}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--lavender);outline-offset:2px}
+.app{max-width:1480px;margin:0 auto;padding:0 36px 48px}.topbar{height:86px;display:flex;align-items:center;justify-content:space-between;gap:22px;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:13px;min-width:0}.brand-logo{width:42px;height:42px;object-fit:contain}.brand-name{font-weight:900;letter-spacing:-.04em;font-size:16px}.brand-sub{color:var(--muted);font-size:11px;margin-top:4px}.top-right{display:flex;align-items:center;gap:12px}.divider-v{height:32px;width:1px;background:var(--line);margin:0 5px}.profile{display:flex;align-items:center;gap:10px}.avatar{height:38px;width:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#8255fb,#382070);border:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:800;overflow:hidden}.avatar img{height:100%;width:100%;object-fit:cover}.profile-name{font-size:12px;font-weight:700;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.profile-role{font-size:11px;color:var(--muted);margin-top:3px}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;border:1px solid transparent;border-radius:11px;padding:11px 15px;font-size:12px;font-weight:700;white-space:nowrap;transition:background .16s,border-color .16s,transform .16s}.btn:active{transform:translateY(1px)}.primary{background:var(--violet);color:#fff;box-shadow:0 7px 24px rgba(113,56,245,.18)}.primary:hover{background:var(--violet-hover)}.secondary{background:rgba(255,255,255,.035);color:#eae7f2;border-color:var(--line)}.secondary:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15)}.danger{background:rgba(255,142,153,.08);border-color:rgba(255,142,153,.22);color:#ffb2ba}.danger:hover{background:rgba(255,142,153,.15)}.icon-btn{height:38px;width:38px;padding:0;border-radius:11px;background:transparent;color:var(--soft);border:1px solid var(--line);display:grid;place-items:center}.icon-btn:hover{background:rgba(255,255,255,.05)}
+.main{padding-top:34px}.breadcrumb{display:flex;gap:9px;align-items:center;font-size:11px;color:var(--muted);margin-bottom:20px}.breadcrumb span:last-child{color:#e8e4f0}.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:28px}.eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:var(--lavender)}h1,h2,h3,p{margin-top:0}.hero h1{font-family:"Space Grotesk",Archivo,sans-serif;font-size:clamp(29px,4vw,42px);line-height:1.08;letter-spacing:-.055em;margin:10px 0 10px;font-weight:700}.hero p{font-size:13px;line-height:1.6;color:var(--muted);margin:0;max-width:620px}.hero-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}.hero-actions .btn{height:44px;padding:0 17px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:26px}.stat{position:relative;overflow:hidden;min-height:128px;padding:20px 21px;background:linear-gradient(145deg,rgba(26,25,34,.93),rgba(17,17,22,.96));border:1px solid var(--line);border-radius:16px}.stat:after{content:"";position:absolute;right:-26px;top:-42px;width:100px;height:100px;border-radius:50%;background:rgba(113,56,245,.07);filter:blur(2px)}.stat-top{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:11px}.stat-icon{height:30px;width:30px;border-radius:9px;display:grid;place-items:center;background:rgba(182,154,255,.09);color:var(--lavender)}.stat-value{font-family:"Space Grotesk",sans-serif;font-size:32px;font-weight:700;letter-spacing:-.05em;margin-top:14px;position:relative;z-index:1}.stat-note{font-size:10px;color:#777584;margin-top:3px}
+.panel{border:1px solid var(--line);border-radius:18px;background:rgba(17,17,22,.88);overflow:hidden}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 24px;border-bottom:1px solid var(--line)}.panel-title{font-size:15px;font-weight:800;letter-spacing:-.025em;margin:0}.panel-sub{font-size:11px;color:var(--muted);margin:6px 0 0}.table-controls{display:flex;align-items:center;gap:10px}.search{position:relative}.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#777584;pointer-events:none}.search input{height:37px;width:220px;padding:0 12px 0 36px;background:#0b0b10;border:1px solid var(--line);border-radius:10px;color:#fff;font-size:11px}.filter{height:37px;padding:0 30px 0 12px;background:#0b0b10;border:1px solid var(--line);border-radius:10px;color:#e5e0ed;font-size:11px}.table-wrap{width:100%;overflow-x:auto}table{width:100%;min-width:730px;border-collapse:collapse;font-size:12px}thead{background:rgba(255,255,255,.018)}th{text-align:left;padding:13px 22px;color:#8e8b9b;font-weight:600;font-size:10px;letter-spacing:.035em;border-bottom:1px solid var(--line)}td{padding:17px 22px;border-bottom:1px solid rgba(255,255,255,.045);vertical-align:middle;color:#dbd8e3}tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:rgba(255,255,255,.018)}.release-cell{display:flex;align-items:center;gap:12px;min-width:190px}.release-art{width:40px;height:40px;border:1px solid rgba(182,154,255,.14);border-radius:10px;background:linear-gradient(145deg,rgba(113,56,245,.24),rgba(182,154,255,.04));display:grid;place-items:center;color:#d5c5ff;flex-shrink:0}.release-title{font-weight:700;color:#f4f1fa;font-size:12px;max-width:240px;overflow-wrap:anywhere}.release-id{font-size:10px;color:#777584;margin-top:4px}.artist-text,.date-text{color:#aaa7b5;font-size:11px}.status{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:700;white-space:nowrap;border:1px solid transparent}.status:before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}.status.pending{color:var(--amber);background:rgba(242,200,121,.075);border-color:rgba(242,200,121,.15)}.status.approved{color:var(--green);background:rgba(114,220,161,.07);border-color:rgba(114,220,161,.16)}.status.rejected{color:var(--red);background:rgba(255,142,153,.07);border-color:rgba(255,142,153,.16)}.actions{display:flex;gap:6px;justify-content:flex-end}.actions .btn{padding:8px 10px;font-size:10px;border-radius:9px}.empty{padding:64px 20px 70px;text-align:center}.empty-icon{height:54px;width:54px;display:grid;place-items:center;margin:0 auto 17px;border-radius:17px;background:rgba(113,56,245,.1);color:var(--lavender);border:1px solid rgba(182,154,255,.12)}.empty h3{font-size:14px;margin:0 0 8px}.empty p{font-size:12px;line-height:1.6;color:var(--muted);max-width:400px;margin:0 auto 18px}.empty .btn{height:40px}
+.bottom-note{display:flex;align-items:center;gap:8px;font-size:10px;color:#777584;margin-top:17px}.live-dot{height:7px;width:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(114,220,161,.08)}
+.message{display:none;padding:13px 15px;border-radius:12px;margin:0 0 18px;font-size:12px;line-height:1.5;white-space:pre-wrap}.message.show{display:block}.message.error{background:rgba(255,142,153,.08);border:1px solid rgba(255,142,153,.22);color:#ffb4bc}.message.info{background:rgba(182,154,255,.08);border:1px solid rgba(182,154,255,.22);color:#e1d5ff}.message.success{background:rgba(114,220,161,.08);border:1px solid rgba(114,220,161,.2);color:#a8f0c7}
+.overlay{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(4,4,8,.78);backdrop-filter:blur(12px);padding:20px}.overlay.open{display:flex}.modal{width:min(100%,650px);max-height:calc(100vh - 40px);overflow:auto;background:#14141b;border:1px solid rgba(255,255,255,.12);border-radius:20px;box-shadow:0 28px 100px rgba(0,0,0,.6)}.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:23px 25px;border-bottom:1px solid var(--line)}.modal-head h2{font-size:19px;letter-spacing:-.04em;margin:0}.modal-head p{font-size:11px;color:var(--muted);margin:7px 0 0;line-height:1.5}.modal-body{padding:23px 25px 25px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.field{margin-bottom:16px;min-width:0}.field.full{grid-column:1/-1}.field label{display:block;font-size:11px;font-weight:700;margin-bottom:8px;color:#dcd8e6}.required{color:var(--lavender)}.field input,.field select,.field textarea{display:block;width:100%;height:42px;padding:0 12px;background:#0b0b10;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#f8f6fb;font-size:12px;outline:none}.field textarea{height:auto;min-height:86px;resize:vertical;padding:11px 12px;line-height:1.55}.field input::placeholder,.field textarea::placeholder{color:#696675}.field select{appearance:auto}.field .help{font-size:10px;line-height:1.5;color:#858292;margin:7px 0 0}.form-foot{display:flex;align-items:center;justify-content:space-between;gap:15px;padding-top:17px;border-top:1px solid var(--line)}.form-foot .help{font-size:10px;color:#858292;line-height:1.5;max-width:330px}.form-actions{display:flex;gap:9px}.form-actions .btn{height:40px}.hidden{display:none!important}.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:50px 20px;color:var(--muted);font-size:12px}.spinner{height:14px;width:14px;border:2px solid rgba(255,255,255,.18);border-top-color:var(--lavender);border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.toastline{display:flex;align-items:center;gap:8px}
+footer{text-align:center;color:#666473;font-size:10px;margin-top:28px}
+@media(max-width:900px){.app{padding:0 22px 40px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{align-items:flex-start;flex-direction:column}.hero-actions{width:100%}.hero-actions .btn{flex:1}.panel-head{align-items:flex-start;flex-direction:column}.table-controls{width:100%}.search{flex:1}.search input{width:100%}}
+@media(max-width:600px){.app{padding:0 14px 28px}.topbar{height:auto;min-height:75px;padding:13px 0;align-items:flex-start}.brand-logo{width:35px;height:35px}.brand-name{font-size:13px}.brand-sub{font-size:10px}.top-right{gap:7px}.profile{display:none}.divider-v{display:none}.top-right .secondary{font-size:10px;padding:9px}.main{padding-top:25px}.hero h1{font-size:31px}.hero-actions{flex-wrap:wrap}.hero-actions .btn{flex:1;min-width:135px}.stat{padding:16px;min-height:112px}.stat-value{font-size:28px}.stat-top{font-size:10px}.panel-head{padding:18px}.table-controls{flex-direction:column;align-items:stretch}.filter{width:100%}.modal-head,.modal-body{padding:18px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.form-foot{align-items:stretch;flex-direction:column}.form-foot .help{max-width:none}.form-actions{width:100%}.form-actions .btn{flex:1}.overlay{padding:10px}.modal{max-height:calc(100vh - 20px)}}
+</style>
 </head>
 <body>
-  <main class="shell">
-    <header class="top">
-      <div class="brand">
-        <img src="bersz-logo.png" alt="Bersz Records">
-        <div><h1>BERSZ RECORDS</h1><p>Portal privado de artistas</p></div>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-logo" src="bersz-logo.png" alt="Bersz Records">
+      <div><div class="brand-name">BERSZ RECORDS</div><div class="brand-sub">Portal privado de artistas</div></div>
+    </div>
+    <div class="top-right">
+      <div class="profile">
+        <div id="avatar" class="avatar">BZ</div>
+        <div><div id="profile-name" class="profile-name">Cuenta autorizada</div><div id="profile-role" class="profile-role">Sesión activa</div></div>
       </div>
-      <div class="top-actions">
-        <span id="role-pill" class="pill">Verificando sesión…</span>
-        <button id="refresh-btn" class="btn secondary">Actualizar</button>
-        <button id="logout-btn" class="btn secondary">Cerrar sesión</button>
-      </div>
-    </header>
+      <div class="divider-v"></div>
+      <button id="refresh-btn" class="icon-btn" aria-label="Actualizar lanzamientos" title="Actualizar lanzamientos">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2"/></svg>
+      </button>
+      <button id="logout-btn" class="btn secondary">Cerrar sesión</button>
+    </div>
+  </header>
 
-    <section class="welcome">
-      <div class="eyebrow">Espacio de trabajo</div>
-      <h2 id="welcome-title">Tu música, en un solo lugar.</h2>
-      <p id="welcome-subtitle">Consultando tu cuenta y los lanzamientos guardados en Bersz Records.</p>
+  <main class="main">
+    <div class="breadcrumb"><span>BERSZ WORKSPACE</span><span>/</span><span>Panel de control</span></div>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Panel de control</div>
+        <h1 id="welcome-title">Tu catálogo, bajo control.</h1>
+        <p id="welcome-subtitle">Consulta tus lanzamientos y gestiona tu catálogo desde un solo lugar.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="reload-btn" class="btn secondary"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2"/></svg>Actualizar datos</button>
+        <button id="new-release-btn" class="btn primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nuevo lanzamiento</button>
+      </div>
     </section>
 
     <div id="message" class="message" role="status" aria-live="polite"></div>
 
-    <section class="stats" aria-label="Resumen de lanzamientos">
-      <div class="stat"><label>Total de lanzamientos visibles</label><strong id="stat-total">—</strong></div>
-      <div class="stat"><label>Pendientes</label><strong id="stat-pending">—</strong></div>
-      <div class="stat"><label>Aprobados</label><strong id="stat-approved">—</strong></div>
+    <section class="stats" aria-label="Resumen del catálogo">
+      <article class="stat"><div class="stat-top"><span>Lanzamientos visibles</span><span class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5h16v14zM8 9h8M8 13h5"/></svg></span></div><div id="stat-total" class="stat-value">—</div><div class="stat-note">Registros en tu catálogo</div></article>
+      <article class="stat"><div class="stat-top"><span>Pendientes de revisión</span><span class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span></div><div id="stat-pending" class="stat-value">—</div><div class="stat-note">Esperando una decisión</div></article>
+      <article class="stat"><div class="stat-top"><span>Aprobados</span><span class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m5 12 4 4L19 6"/></svg></span></div><div id="stat-approved" class="stat-value">—</div><div class="stat-note">Con aprobación registrada</div></article>
+      <article class="stat"><div class="stat-top"><span>Rechazados</span><span class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m7 7 10 10M17 7 7 17"/><circle cx="12" cy="12" r="9"/></svg></span></div><div id="stat-rejected" class="stat-value">—</div><div class="stat-note">Requieren revisar observaciones</div></article>
     </section>
 
-    <div class="layout">
-      <section class="panel">
-        <div class="panel-head">
-          <div><h3>Lanzamientos</h3><p>Datos consultados en el backend de Bersz Records.</p></div>
-          <span id="release-count" class="pill">—</span>
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2 class="panel-title">Catálogo de lanzamientos</h2><p class="panel-sub">Registros obtenidos del backend de Bersz Records · No se muestran datos de demostración</p></div>
+        <div class="table-controls">
+          <label class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="search-input" type="search" placeholder="Buscar lanzamiento o artista…" aria-label="Buscar lanzamiento o artista"></label>
+          <select id="status-filter" class="filter" aria-label="Filtrar por estado"><option value="all">Todos los estados</option><option value="pending">Pendientes</option><option value="approved">Aprobados</option><option value="rejected">Rechazados</option></select>
         </div>
-        <div id="releases-area" class="table-wrap"><div class="empty"><span class="spinner"></span>Cargando lanzamientos…</div></div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head"><div><h3>Registrar lanzamiento</h3><p>El formulario guarda la solicitud en el backend real.</p></div></div>
-        <form id="release-form">
-          <div class="field"><label for="release-title">Título *</label><input id="release-title" name="title" maxlength="180" required placeholder="Nombre del lanzamiento"></div>
-          <div class="form-grid">
-            <div class="field"><label for="release-date">Fecha de lanzamiento *</label><input id="release-date" name="date" type="date" required></div>
-            <div class="field"><label for="release-type">Tipo</label><select id="release-type" name="type"><option>Single</option><option>EP</option><option>Album</option></select></div>
-            <div class="field"><label for="release-version">Versión</label><select id="release-version" name="version"><option>Normal</option><option>Speed Up</option><option>Slowed</option><option>Super Slowed</option><option>Ultra Slowed</option><option>Mega Slowed</option><option>Instrumental</option></select></div>
-            <div class="field" id="artist-field" hidden><label for="release-artist">Artista</label><input id="release-artist" name="artist" maxlength="120" placeholder="Nombre artístico"></div>
-            <div class="field full"><label for="release-credits">Créditos / colaboradores</label><textarea id="release-credits" name="credits" maxlength="2000" placeholder="DJ, productor, MC y otros créditos (opcional)"></textarea></div>
-          </div>
-          <div class="field" id="artist-id-field" hidden><label for="release-artist-id">ID de artista (opcional)</label><input id="release-artist-id" name="artist_id" maxlength="100" placeholder="ID existente en la hoja Artists"><div class="help">Los administradores deben usar un artista y un ID que coincidan con los registros existentes cuando corresponda.</div></div>
-          <button id="submit-btn" class="btn primary" type="submit" style="width:100%">Enviar lanzamiento</button>
-          <p class="help">En esta versión se registran los datos básicos. La subida de WAV/portada y otras funciones avanzadas aún no están conectadas a esta pantalla.</p>
-        </form>
-      </section>
-    </div>
-    <footer>BERSZ RECORDS · Acceso privado · La información se consulta en el backend autorizado.</footer>
+      </div>
+      <div id="releases-area"><div class="loading"><span class="spinner"></span>Conectando con el catálogo…</div></div>
+    </section>
+    <div class="bottom-note"><span class="live-dot"></span><span id="sync-note">Conexión protegida con el backend de Bersz Records.</span></div>
   </main>
+  <footer>BERSZ RECORDS · Portal privado · Las acciones requieren una sesión autorizada</footer>
+</div>
+
+<div id="overlay" class="overlay" role="presentation">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-head">
+      <div><h2 id="modal-title">Nuevo lanzamiento</h2><p>Completa la información inicial. Los datos se enviarán al backend real de Bersz Records.</p></div>
+      <button id="close-x" class="icon-btn" aria-label="Cerrar formulario"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m18 6-12 12M6 6l12 12"/></svg></button>
+    </div>
+    <form id="release-form" class="modal-body">
+      <div class="form-grid">
+        <div class="field full"><label for="release-title">Título del lanzamiento <span class="required">*</span></label><input id="release-title" name="title" maxlength="180" required placeholder="Escribe el nombre de la canción o lanzamiento"></div>
+        <div class="field"><label for="release-date">Fecha de lanzamiento <span class="required">*</span></label><input id="release-date" name="date" type="date" required></div>
+        <div class="field"><label for="release-type">Tipo de lanzamiento</label><select id="release-type" name="type"><option>Single</option><option>EP</option><option>Album</option></select></div>
+        <div class="field"><label for="release-version">Versión</label><select id="release-version" name="version"><option>Normal</option><option>Speed Up</option><option>Slowed</option><option>Super Slowed</option><option>Ultra Slowed</option><option>Mega Slowed</option><option>Instrumental</option></select></div>
+        <div id="artist-field" class="field"><label for="release-artist">Artista principal <span class="required">*</span></label><input id="release-artist" name="artist" maxlength="120" placeholder="Nombre artístico"></div>
+        <div id="artist-id-field" class="field full"><label for="release-artist-id">ID de artista <span class="required">*</span></label><input id="release-artist-id" name="artist_id" maxlength="100" placeholder="ID del perfil existente en Artists"><p class="help">Debe coincidir con el ID de artista registrado en el sistema.</p></div>
+        <div class="field full"><label for="release-credits">Créditos y colaboradores</label><textarea id="release-credits" name="credits" maxlength="2000" placeholder="DJ, productor, MC y demás créditos (opcional)"></textarea></div>
+      </div>
+      <div class="form-foot">
+        <p class="help">Esta pantalla registra los datos básicos del lanzamiento. La carga de audio WAV, portada y documentos se integrará en una fase posterior.</p>
+        <div class="form-actions"><button id="cancel-form" type="button" class="btn secondary">Cancelar</button><button id="submit-btn" type="submit" class="btn primary">Enviar lanzamiento</button></div>
+      </div>
+    </form>
+  </section>
+</div>
 
 <script>
 (function(){
-  "use strict";
-  var API = "https://script.google.com/macros/s/AKfycbwSlMa6foptS0880GvOf_9Awj6L1-nB_y7NG_ohB00JTHEGj_IRTnsQIv0cNaDQQhQSzg/exec";
-  var TOKEN_KEY = "bzr_session_token";
-  var USER_KEY = "bzr_session_user";
-  var token = sessionStorage.getItem(TOKEN_KEY) || "";
-  var user = null;
-  try { user = JSON.parse(sessionStorage.getItem(USER_KEY) || "null"); } catch (_) {}
-  var releases = [];
-  var role = String((user && user.role) || "").toLowerCase();
-  var messageEl = document.getElementById("message");
-  var area = document.getElementById("releases-area");
-  var refreshBtn = document.getElementById("refresh-btn");
-  var logoutBtn = document.getElementById("logout-btn");
-  var submitBtn = document.getElementById("submit-btn");
-
-  function endSession(){
-    sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY);
-    window.location.replace("index.html");
-  }
-  if (!token || !user || ["admin","artist"].indexOf(role) < 0) { endSession(); return; }
-
-  document.getElementById("role-pill").textContent = role === "admin" ? "Administración" : "Artista";
-  document.getElementById("welcome-title").textContent = "Hola, " + (user.name || user.artist || (role === "admin" ? "administración" : "artista"));
-  document.getElementById("welcome-subtitle").textContent = user.email || "Tu espacio privado de Bersz Records.";
-  document.getElementById("artist-field").hidden = role !== "admin";
-  document.getElementById("artist-id-field").hidden = role !== "admin";
-
-  function showMessage(kind, text){
-    messageEl.className = "message show " + kind; messageEl.textContent = text;
-  }
-  function clearMessage(){messageEl.className="message";messageEl.textContent="";}
-  function normalizeKey(s){return String(s==null?"":s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");}
-  function valueOf(row, aliases){
-    if(!row || typeof row!=="object") return "";
-    var wanted=aliases.map(normalizeKey);
-    var key=Object.keys(row).find(function(k){return wanted.indexOf(normalizeKey(k))>=0;});
-    return key ? row[key] : "";
-  }
-  function str(v){if(v==null)return "";if(typeof v==="object"&&v.toJSON)return String(v.toJSON());return String(v);}
-  function statusInfo(v){
-    var s=String(v||"Pendiente").trim().toLowerCase();
-    if(["approved","aprobado","aprobada","accepted","aceptado"].indexOf(s)>=0)return {label:"Aprobado",cls:"approved"};
-    if(["rejected","rechazado","rechazada","denied"].indexOf(s)>=0)return {label:"Rechazado",cls:"rejected"};
-    return {label:"Pendiente",cls:"pending"};
-  }
-  function prettyDate(v){
-    if(!v)return "—"; var s=String(v);
-    var d=new Date(s); if(Number.isNaN(d.getTime()))return s;
-    return new Intl.DateTimeFormat("es-NI",{year:"numeric",month:"short",day:"numeric"}).format(d);
-  }
-  function el(tag, cls, text){var node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
-  function button(label, cls, action){
-    var b=el("button","btn "+cls+" small",label);b.type="button";b.addEventListener("click",action);return b;
-  }
-  function updateStats(){
-    var pending=0,approved=0;releases.forEach(function(r){var s=statusInfo(valueOf(r,["status","Estado"]));if(s.cls==="pending")pending++;if(s.cls==="approved")approved++;});
-    document.getElementById("stat-total").textContent=String(releases.length);
-    document.getElementById("stat-pending").textContent=String(pending);
-    document.getElementById("stat-approved").textContent=String(approved);
-    document.getElementById("release-count").textContent=releases.length+" registro(s)";
-  }
-  function renderReleases(){
-    area.replaceChildren();
-    if(!releases.length){area.appendChild(el("div","empty","Todavía no hay lanzamientos visibles para esta cuenta."));updateStats();return;}
-    var table=el("table"),thead=el("thead"),hr=el("tr");
-    ["Lanzamiento","Artista","Fecha","Estado"].forEach(function(label){hr.appendChild(el("th","",label));});
-    thead.appendChild(hr);table.appendChild(thead);var tbody=el("tbody");
-    releases.forEach(function(r){
-      var tr=el("tr");
-      var title=String(valueOf(r,["title","release_title","release_name","name","Titulo_Cancion"])||"Sin título");
-      var id=String(valueOf(r,["id","release_id","ID_Lanzamiento","releaseId"])||"");
-      var artist=String(valueOf(r,["artist_name","artistic_name","artist","Artista_Principal","Artista"])||"—");
-      var date=prettyDate(valueOf(r,["release_date","date","Fecha_Lanzamiento"]));
-      var status=statusInfo(valueOf(r,["status","Estado"]));
-      tr.appendChild(el("td","",title+(id?"\nID: "+id:"")));
-      tr.appendChild(el("td","",artist));
-      tr.appendChild(el("td","",date));
-      var td=el("td");td.appendChild(el("span","status "+status.cls,status.label));
-      if(role==="admin"&&id){
-        var actions=el("div","row-actions");
-        if(status.cls!=="approved")actions.appendChild(button("Aprobar","primary",function(){changeStatus(id,"approved","");}));
-        if(status.cls!=="rejected")actions.appendChild(button("Rechazar","danger",function(){var reason=window.prompt("Motivo del rechazo (se mostrará en el registro):");if(reason===null)return;if(!reason.trim()){showMessage("error","Escribe un motivo para rechazar el lanzamiento.");return;}changeStatus(id,"rejected",reason.trim());}));
-        td.appendChild(actions);
-      }
-      tr.appendChild(td);tbody.appendChild(tr);
-    });
-    table.appendChild(tbody);area.appendChild(table);updateStats();
-  }
-  async function apiPost(payload){
-    var res=await fetch(API,{method:"POST",mode:"cors",redirect:"follow",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(payload)});
-    if(!res.ok)throw new Error("El servicio respondió con HTTP "+res.status+".");
-    var json=await res.json();
-    if(!json||json.status!=="success")throw new Error((json&&(json.message||json.error))||"El servidor no confirmó la operación.");
-    return json;
-  }
-  async function loadReleases(){
-    refreshBtn.disabled=true;area.replaceChildren(el("div","empty","Consultando el backend…"));clearMessage();
-    try{
-      var response=await apiPost({action:"listReleases",token:token});
-      if(!Array.isArray(response.data))throw new Error("El backend no devolvió una lista válida de lanzamientos.");
-      releases=response.data;renderReleases();
-    }catch(err){
-      area.replaceChildren(el("div","empty","No se pudieron cargar los lanzamientos."));
-      showMessage("error",(err&&err.message?err.message:"Error al consultar los lanzamientos.")+"\nSi la sesión expiró, cierra sesión y vuelve a entrar.");
-      if(err&&/sesión|token|autorizad|inactiva|rol/i.test(err.message||"")){window.setTimeout(endSession,1600);}
-    }finally{refreshBtn.disabled=false;}
-  }
-  async function changeStatus(id,status,reason){
-    if(!window.confirm(status==="approved"?"¿Aprobar este lanzamiento?":"¿Rechazar este lanzamiento con el motivo indicado?"))return;
-    clearMessage();
-    try{
-      await apiPost({action:"updateStatus",token:token,id:id,status:status,decision_note:reason});
-      showMessage("success","Estado del lanzamiento actualizado en el backend.");await loadReleases();
-    }catch(err){showMessage("error",(err&&err.message)||"No se pudo actualizar el lanzamiento.");}
-  }
-  document.getElementById("release-form").addEventListener("submit",async function(ev){
-    ev.preventDefault();clearMessage();
-    var payload={action:"submit",token:token,title:document.getElementById("release-title").value.trim(),date:document.getElementById("release-date").value,type:document.getElementById("release-type").value,version:document.getElementById("release-version").value,credits:document.getElementById("release-credits").value.trim()};
-    if(role==="admin"){payload.artist=document.getElementById("release-artist").value.trim();payload.artist_id=document.getElementById("release-artist-id").value.trim();}
-    if(!payload.title||!payload.date){showMessage("error","Completa el título y la fecha de lanzamiento.");return;}
-    submitBtn.disabled=true;submitBtn.textContent="Enviando…";
-    try{
-      await apiPost(payload);
-      document.getElementById("release-form").reset();
-      showMessage("success","Lanzamiento registrado en el backend real.");await loadReleases();
-    }catch(err){showMessage("error",(err&&err.message)||"No se pudo registrar el lanzamiento.");}
-    finally{submitBtn.disabled=false;submitBtn.textContent="Enviar lanzamiento";}
-  });
-  refreshBtn.addEventListener("click",loadReleases);
-  logoutBtn.addEventListener("click",endSession);
-  loadReleases();
+"use strict";
+var API="https://script.google.com/macros/s/AKfycbwSlMa6foptS0880GvOf_9Awj6L1-nB_y7NG_ohB00JTHEGj_IRTnsQIv0cNaDQQhQSzg/exec";
+var TOKEN_KEY="bzr_session_token",USER_KEY="bzr_session_user",token=sessionStorage.getItem(TOKEN_KEY)||"",user=null;
+try{user=JSON.parse(sessionStorage.getItem(USER_KEY)||"null")}catch(_){}
+var role=String(user&&user.role||"").toLowerCase(),releases=[],messageEl=document.getElementById("message"),area=document.getElementById("releases-area"),submitBtn=document.getElementById("submit-btn"),overlay=document.getElementById("overlay"),form=document.getElementById("release-form");
+function endSession(){sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(USER_KEY);location.replace("index.html")}
+if(!token||!user||["admin","artist"].indexOf(role)<0){endSession();return}
+var isAdmin=role==="admin";
+var name=String(user.name||user.artist||(isAdmin?"Administración":"Artista"));
+document.getElementById("profile-name").textContent=name;
+document.getElementById("profile-role").textContent=isAdmin?"Administración":"Artista";
+document.getElementById("welcome-title").textContent="Hola, "+name;
+document.getElementById("welcome-subtitle").textContent=isAdmin?"Aquí tienes la actividad del catálogo y las acciones que requieren revisión.":"Consulta el estado de tus lanzamientos y envía nuevas propuestas desde tu espacio privado.";
+var avatar=document.getElementById("avatar");if(user.avatar){var img=document.createElement("img");img.src=user.avatar;img.alt="";img.referrerPolicy="no-referrer";img.onerror=function(){avatar.textContent=(name.slice(0,2)||"BZ").toUpperCase()};avatar.replaceChildren(img)}else avatar.textContent=(name.slice(0,2)||"BZ").toUpperCase();
+document.getElementById("artist-field").classList.toggle("hidden",!isAdmin);
+document.getElementById("artist-id-field").classList.toggle("hidden",!isAdmin);
+if(isAdmin){document.getElementById("release-artist").required=true;document.getElementById("release-artist-id").required=true}else{document.getElementById("release-artist").required=false;document.getElementById("release-artist-id").required=false}
+function msg(kind,text){messageEl.className="message show "+kind;messageEl.textContent=text;messageEl.scrollIntoView({behavior:"smooth",block:"nearest"})}
+function clearMsg(){messageEl.className="message";messageEl.textContent=""}
+function key(s){return String(s==null?"":s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"")}
+function val(row,aliases){var keys=Object.keys(row||{}),wanted=aliases.map(key),found=keys.find(function(k){return wanted.indexOf(key(k))>=0});return found?row[found]:""}
+function status(v){var s=String(v||"pending").trim().toLowerCase();if(["approved","aprobado","aprobada","accepted","aceptado"].indexOf(s)>=0)return{key:"approved",label:"Aprobado"};if(["rejected","rechazado","rechazada","denied"].indexOf(s)>=0)return{key:"rejected",label:"Rechazado"};return{key:"pending",label:"Pendiente"}}
+function date(v){if(!v)return"—";var d=new Date(v);if(Number.isNaN(d.getTime()))return String(v);return new Intl.DateTimeFormat("es-NI",{year:"numeric",month:"short",day:"numeric"}).format(d)}
+function node(tag,cls,text){var n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
+function iconButton(text,cls,fn){var b=node("button","btn "+cls,text);b.type="button";b.addEventListener("click",fn);return b}
+function updateStats(){var pend=0,app=0,rej=0;releases.forEach(function(r){var s=status(val(r,["status","Estado"])).key;if(s==="pending")pend++;if(s==="approved")app++;if(s==="rejected")rej++});document.getElementById("stat-total").textContent=releases.length;document.getElementById("stat-pending").textContent=pend;document.getElementById("stat-approved").textContent=app;document.getElementById("stat-rejected").textContent=rej}
+function filtered(){var q=document.getElementById("search-input").value.trim().toLowerCase(),f=document.getElementById("status-filter").value;return releases.filter(function(r){var s=status(val(r,["status","Estado"])).key;var hay=[val(r,["title","release_title","release_name","name","Titulo_Cancion"]),val(r,["artist_name","artistic_name","artist","Artista_Principal","Artista"]),val(r,["id","release_id","ID_Lanzamiento"])].join(" ").toLowerCase();return(f==="all"||s===f)&&(!q||hay.indexOf(q)>=0)})}
+function render(){updateStats();var rows=filtered();area.replaceChildren();if(!rows.length){var empty=node("div","empty");var ico=node("div","empty-icon");ico.innerHTML='<svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H20v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M4 18.5A1.5 1.5 0 0 1 5.5 17H20M8 8h8M8 12h5"/></svg>';empty.appendChild(ico);empty.appendChild(node("h3","",releases.length?"No hay resultados para estos filtros":"Todavía no hay lanzamientos registrados"));empty.appendChild(node("p","",releases.length?"Prueba con otro término o cambia el filtro de estado.":"Cuando envíes un lanzamiento y quede guardado en el backend, aparecerá aquí con su estado actualizado."));if(!releases.length)empty.appendChild(iconButton("+  Registrar primer lanzamiento","primary",openModal));area.appendChild(empty);return}
+var wrap=node("div","table-wrap"),table=node("table"),thead=node("thead"),hr=node("tr");["Lanzamiento","Artista","Fecha de lanzamiento","Estado",""].forEach(function(t){hr.appendChild(node("th","",t))});thead.appendChild(hr);table.appendChild(thead);var body=node("tbody");
+rows.forEach(function(r){var tr=node("tr"),title=String(val(r,["title","release_title","release_name","name","Titulo_Cancion"])||"Sin título"),id=String(val(r,["id","release_id","ID_Lanzamiento","releaseId"])||""),artist=String(val(r,["artist_name","artistic_name","artist","Artista_Principal","Artista"])||"—"),dt=date(val(r,["release_date","date","Fecha_Lanzamiento"])),st=status(val(r,["status","Estado"]));var td=node("td"),cell=node("div","release-cell"),art=node("div","release-art");art.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';var details=node("div"),ttl=node("div","release-title",title),sub=node("div","release-id",id?"ID · "+id:"Registro de catálogo");details.append(ttl,sub);cell.append(art,details);td.appendChild(cell);tr.appendChild(td);tr.appendChild((function(){var n=node("td","artist-text",artist);return n})());tr.appendChild(node("td","date-text",dt));var sd=node("td");sd.appendChild(node("span","status "+st.key,st.label));tr.appendChild(sd);var act=node("td");if(isAdmin&&id){var actions=node("div","actions");if(st.key!=="approved")actions.appendChild(iconButton("Aprobar","primary",function(){change(id,"approved","")}));if(st.key!=="rejected")actions.appendChild(iconButton("Rechazar","danger",function(){var reason=prompt("Motivo del rechazo (quedará registrado):");if(reason===null)return;if(!reason.trim()){msg("error","Debes escribir un motivo para rechazar el lanzamiento.");return}change(id,"rejected",reason.trim())}));act.appendChild(actions)}tr.appendChild(act);body.appendChild(tr)});
+table.appendChild(body);wrap.appendChild(table);area.appendChild(wrap)}
+async function api(payload){var response=await fetch(API,{method:"POST",mode:"cors",redirect:"follow",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(payload)});if(!response.ok)throw new Error("El backend respondió con HTTP "+response.status+".");var result=await response.json();if(!result||result.status!=="success")throw new Error(result&&(result.message||result.error)||"El servidor no confirmó la operación.");return result}
+async function load(){var b=document.getElementById("reload-btn");b.disabled=true;document.getElementById("refresh-btn").disabled=true;area.innerHTML='<div class="loading"><span class="spinner"></span>Actualizando catálogo…</div>';clearMsg();try{var r=await api({action:"listReleases",token:token});if(!Array.isArray(r.data))throw new Error("El backend no devolvió una lista válida.");releases=r.data;render();document.getElementById("sync-note").textContent="Datos sincronizados · "+new Intl.DateTimeFormat("es-NI",{hour:"2-digit",minute:"2-digit"}).format(new Date())}catch(e){area.replaceChildren();var empty=node("div","empty");empty.appendChild(node("h3","","No pudimos conectar con el catálogo"));empty.appendChild(node("p","",e&&e.message?e.message:"Error al consultar el backend."));empty.appendChild(iconButton("Reintentar","secondary",load));area.appendChild(empty);msg("error",(e&&e.message?e.message:"Error de conexión")+". Comprueba el despliegue de Apps Script o vuelve a iniciar sesión.");if(e&&/sesión|token|autorizad|inactiva|rol/i.test(e.message||""))setTimeout(endSession,1800)}finally{b.disabled=false;document.getElementById("refresh-btn").disabled=false}}
+function openModal(){clearMsg();form.reset();overlay.classList.add("open");document.body.style.overflow="hidden";setTimeout(function(){document.getElementById("release-title").focus()},40)}
+function closeModal(){overlay.classList.remove("open");document.body.style.overflow="";submitBtn.disabled=false;submitBtn.textContent="Enviar lanzamiento"}
+document.getElementById("new-release-btn").addEventListener("click",openModal);document.getElementById("close-x").addEventListener("click",closeModal);document.getElementById("cancel-form").addEventListener("click",closeModal);overlay.addEventListener("click",function(e){if(e.target===overlay)closeModal()});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&overlay.classList.contains("open"))closeModal()});
+document.getElementById("refresh-btn").addEventListener("click",load);document.getElementById("reload-btn").addEventListener("click",load);document.getElementById("logout-btn").addEventListener("click",endSession);document.getElementById("search-input").addEventListener("input",render);document.getElementById("status-filter").addEventListener("change",render);
+form.addEventListener("submit",async function(e){e.preventDefault();clearMsg();var title=document.getElementById("release-title").value.trim(),dt=document.getElementById("release-date").value;if(!title||!dt){msg("error","Completa el título y la fecha de lanzamiento.");return}var payload={action:"submit",token:token,title:title,date:dt,type:document.getElementById("release-type").value,version:document.getElementById("release-version").value,credits:document.getElementById("release-credits").value.trim()};if(isAdmin){payload.artist=document.getElementById("release-artist").value.trim();payload.artist_id=document.getElementById("release-artist-id").value.trim();if(!payload.artist||!payload.artist_id){msg("error","Para registrar desde administración, completa el nombre artístico y el ID de artista existente.");return}}submitBtn.disabled=true;submitBtn.textContent="Enviando…";try{await api(payload);closeModal();msg("success","Lanzamiento guardado correctamente en el backend.");await load()}catch(e){msg("error",e&&e.message?e.message:"No se pudo registrar el lanzamiento.");submitBtn.disabled=false;submitBtn.textContent="Enviar lanzamiento"}});
+async function change(id,newStatus,reason){var q=newStatus==="approved"?"¿Confirmas que quieres aprobar este lanzamiento?":"¿Confirmas el rechazo de este lanzamiento?";if(!confirm(q))return;clearMsg();try{await api({action:"updateStatus",token:token,id:id,status:newStatus,decision_note:reason});msg("success","Estado actualizado correctamente.");await load()}catch(e){msg("error",e&&e.message?e.message:"No se pudo actualizar el estado.")}}
+load();
 })();
 </script>
 </body>
