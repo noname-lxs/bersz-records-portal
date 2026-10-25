@@ -780,16 +780,13 @@
             return;
           }
 
-          // El backend devuelve una sesión firmada; guardar solo el token de sesión (nunca el ID token de Google).
-          if (!result.token || !result.user) {
-            throw new Error("El backend validó tu identidad, pero no devolvió la sesión y el perfil necesarios. Revisa el despliegue de Apps Script.");
-          }
-          var sessionUser = result.user;
-          sessionUser.role = role;
-          sessionStorage.setItem("bzr_session_token", result.token);
-          sessionStorage.setItem("bzr_session_user", JSON.stringify(sessionUser));
-          window.location.replace("portal.html");
-          return;
+          // El inicio de sesión valida la identidad y el rol, pero la conexión del panel original sigue pendiente.
+          var roleNames = { artist: "artista", admin: "administración" };
+          showNotice(
+            "info",
+            "Identidad verificada · " + roleNames[role],
+            "La identidad fue verificada, pero el panel original todavía no está conectado a una sesión real. No se abrirá el panel de demostración con datos ficticios."
+          );
         } catch (error) {
           showNotice(
             "error",
