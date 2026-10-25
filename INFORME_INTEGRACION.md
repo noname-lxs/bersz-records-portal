@@ -92,3 +92,31 @@ Definidos en el snapshot local, pero no conectados a pantallas en esta copia:
 5. Conectar el frontend a esos contratos, retirar estado local simulado y probar acceso/aislamiento/error/persistencia en un entorno de pruebas autorizado antes de publicar.
 6. Verificar el repositorio Git y `CNAME` del origen de producción; no venían en el ZIP de entrada.
 
+## Actualización de autenticación en la copia de trabajo (2026-10-25)
+
+Esta sección sustituye el estado del frontend descrito arriba; no afirma que el backend o el sitio publicado hayan cambiado.
+
+- `index.html` envía la credencial de GIS a la acción `login`, exige el token firmado de la respuesta y verifica ese token con `GET action=me` antes de continuar. Conserva solo el token en `sessionStorage`; no persiste el ID token ni usa el correo o rol de Google como autorización.
+- `portal-demo.html` ya no contiene la redirección temporal al aviso ni una aplicación React alternativa. La aplicación original espera una sesión y un perfil devueltos por `me`; el perfil del servidor decide cuál de los tres paneles (`admin`, `artist`, `marketing`) se selecciona. La ausencia, expiración o rechazo de la sesión devuelve al acceso. Mientras la página permanece abierta, `me` se vuelve a comprobar cada cinco minutos y ante rechazo elimina la sesión y vuelve al acceso.
+- Se quitó «Cambio rápido (Demo)», el modal de selección y `handleSelectAccount`/`BERSZ_USER`. Cerrar sesión elimina el token firmado.
+- El portal no carga `DEMO_SEED_STATE` ni lee/escribe su estado en `localStorage` al iniciar. Abre con colecciones vacías; el código de demostración se conserva para las pantallas históricas y sus controles explícitos de demo. La app no muestra los registros ficticios sembrados como información del administrador autenticado. Los WAV siguen siendo locales a IndexedDB y no son archivos de servidor.
+- La sesión verificada solo controla identidad y selección visual del panel. Los formularios y mutaciones heredados sin endpoint siguen siendo una demostración local en memoria y no se consideran operaciones reales autorizadas.
+
+### Backend y despliegue pendientes
+
+El checkout de `noname-lxs/bersz-records-portal` no incluye ningún archivo `.gs`, manifiesto de Apps Script ni fuente del Web App. Hay copias `.gs` en `C:\Users\PC\Downloads`, pero no hay evidencia de que alguna coincida con el despliegue activo, por lo que no se editaron ni se ejecutó una publicación. Una de esas copias indica que `normalizeRole`, `loginWithGoogle` y `requireSession` rechazan `marketing`; `publicUser` no devuelve `isOwner`; el endpoint `updateStatus` valida `admin`. No se puede confirmar que esa copia sea el backend actualmente publicado.
+
+Para completar la autorización real aún hace falta actualizar y desplegar la fuente activa de Apps Script, respetando las propiedades y hojas existentes:
+
+1. Añadir `marketing` a la normalización de roles, al inicio de sesión y a la validación de sesión; conservar la creación/vinculación restringida a `OWNER_EMAIL` y rechazar cualquier correo desconocido.
+2. Mantener `requireAdmin` para acciones administrativas y aplicar comprobaciones de rol, propiedad del recurso y cuenta activa en cada operación que se exponga. Nunca aceptar un rol de `params` como autoridad.
+3. Devolver en `me` el perfil mínimo del usuario desde `Users` (incluido `isOwner` si la interfaz debe mostrar controles exclusivos del propietario). Volver a leer el rol y estado actual de `Users` al validar cada llamada protegida.
+4. Probar la cuenta propietaria y una cuenta no autorizada en un entorno aprobado; comprobar que `artist` y `marketing` solo funcionan al existir cuentas reales con esos roles. Esta copia no crea usuarios ficticios.
+5. Conectar cada pantalla con operación real antes de permitir que sus botones escriban datos de producción. Siguen pendientes cuentas/perfiles, solicitudes de ingreso, administración de lanzamientos, marketing, notificaciones, soporte, finanzas/adelantos, historial y lectura/descarga privada de archivos. Las mutaciones actuales de esas pantallas no llaman al backend.
+6. Publicar manualmente el frontend y el Apps Script verificado; autorizar el origen `portal.berszrecords.top` en OAuth y probar el flujo en un navegador real. El backend inspeccionado no ofrece revocación inmediata de sesión; el servidor aplica la expiración firmada existente (seis horas, según la copia local).
+
+### Verificación de esta actualización
+
+- La revisión estática confirma que no queda redirección temporal al principio de `portal-demo.html`, ni selector de cuentas, `handleSelectAccount`, `BERSZ_USER` o carga de estado de portal desde `localStorage` en el inicio.
+- No se pudo probar un login positivo del propietario, el rechazo de un usuario desconocido desde una cuenta real ni la autorización desplegada para `marketing`: no se dispone de la fuente activa del backend ni de autorización para realizar pruebas con cuentas de producción. Esta entrega no se declara lista para producción.
+

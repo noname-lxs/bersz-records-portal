@@ -660,6 +660,7 @@
          ========================================================== */
       var GOOGLE_CLIENT_ID = "1093619924656-ajhddorlqsc2ahm11bhm26kfn1etgbj1.apps.googleusercontent.com";
       var GOOGLE_LOGIN_URL = "https://script.google.com/macros/s/AKfycbwSlMa6foptS0880GvOf_9Awj6L1-nB_y7NG_ohB00JTHEGj_IRTnsQIv0cNaDQQhQSzg/exec";
+      var BERSZ_SESSION_KEY = "BERSZ_SESSION_V1";
       var googleReady = false;
       var googleAttemptTimer = null;
 
@@ -692,12 +693,8 @@
         notice.replaceChildren();
       }
 
-      if (window.location.hash === "#portal-no-disponible") {
-        showNotice(
-          "info",
-          "Panel no disponible",
-          "Esta copia todavía no tiene conectadas las funciones del panel a datos reales. No se abrió el portal de demostración."
-        );
+      if (window.location.hash === "#session-expired") {
+        showNotice("info", "La sesión terminó", "Vuelve a iniciar sesión con Google para continuar.");
         window.history.replaceState(null, "", window.location.pathname + window.location.search);
       }
 
@@ -746,6 +743,29 @@
         return String((user && (user.role || user.rol)) || (data && (data.role || data.rol)) || "").trim().toLowerCase();
       }
 
+      async function verifyBackendSession(token) {
+        var url = new URL(GOOGLE_LOGIN_URL);
+        url.searchParams.set("action", "me");
+        url.searchParams.set("token", token);
+        var response = await fetch(url.toString(), {
+          method: "GET",
+          mode: "cors",
+          redirect: "follow",
+          cache: "no-store",
+          referrerPolicy: "no-referrer"
+        });
+        if (!response.ok) throw new Error("No se pudo validar la sesión con el servidor.");
+        var data = await response.json();
+        if (!data || !(data.status === "success" || data.ok === true) || !data.user) {
+          throw new Error((data && (data.message || data.error)) || "El servidor rechazó la sesión.");
+        }
+        var role = extractRole(data);
+        if (["admin", "artist", "marketing"].indexOf(role) === -1) {
+          throw new Error("El servidor devolvió un rol sin acceso al portal.");
+        }
+        return data;
+      }
+
       async function handleGoogleCredential(response) {
         resetGoogleButton();
         hideNotice();
@@ -773,21 +793,14 @@
             throw new Error((result && (result.message || result.error)) || "El backend rechazó el acceso.");
           }
 
-          var role = extractRole(result);
-        var supportedRoles = ["artist", "admin"];
-          if (!role || supportedRoles.indexOf(role) === -1) {
-            showNotice("error", "Rol sin acceso al portal", "El backend no devolvió un rol reconocido. Contacta a Bersz Records.");
-            return;
-          }
-
-          // El inicio de sesión valida la identidad y el rol, pero la conexión del panel original sigue pendiente.
-          var roleNames = { artist: "artista", admin: "administración" };
-          showNotice(
-            "info",
-            "Identidad verificada · " + roleNames[role],
-            "La identidad fue verificada, pero el panel original todavía no está conectado a una sesión real. No se abrirá el panel de demostración con datos ficticios."
-          );
+          var sessionToken = String(result.token || result.sessionToken || "");
+          if (!sessionToken) throw new Error("El servidor no devolvió un token de sesión.");
+          await verifyBackendSession(sessionToken);
+          // La única credencial persistida es la sesión firmada. El ID token de Google se descarta.
+          window.sessionStorage.setItem(BERSZ_SESSION_KEY, sessionToken);
+          window.location.assign("portal-demo.html");
         } catch (error) {
+          try { window.sessionStorage.removeItem(BERSZ_SESSION_KEY); } catch (ignored) {}
           showNotice(
             "error",
             "No se pudo completar el acceso",

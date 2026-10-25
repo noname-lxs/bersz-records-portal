@@ -4,7 +4,7 @@ BERSZ RECORDS — PORTAL CON ACTUALIZACIÓN DE MARKETING
 ARCHIVOS
 --------
 index.html ............ Acceso y formulario de solicitud de ingreso.
-portal-demo.html ...... Interfaz heredada; se redirige al aviso de panel no disponible.
+portal-demo.html ...... Portal React original; requiere sesión validada por el backend.
 brand/ ................ Logos del portal.
 favicon.png ........... Icono de la pestaña.
 
@@ -63,23 +63,30 @@ ACTUALIZACIÓN 2.9.1 (CORRECCIONES)
 ESTADO DE INTEGRACIÓN
 ---------------------
 - «Continuar con Google» usa Google Identity Services y envía el ID token al
-  backend para validarlo. El token no se conserva en el navegador.
+  backend para validarlo. El ID token no se conserva; solo el token de sesión
+  firmado se guarda en sessionStorage.
+- El portal consulta `me` al abrirse y vuelve a validar la sesión cada cinco
+  minutos. El perfil del servidor selecciona admin, artist o marketing. No se
+  lee `BERSZ_USER` ni se ofrece cambio manual de cuenta.
+- El estado de demostración no carga al iniciar ni se guarda en localStorage.
+  Las funciones heredadas que no tienen endpoint siguen pendientes y no
+  modifican el backend. Los WAV locales siguen en IndexedDB.
 - «Solicitar acceso» envía los datos al endpoint submitAccessRequest y solo
   muestra éxito cuando Apps Script confirma status=success.
 - El backend disponible ofrece login, me, listReleases, submit, updateStatus,
   submitAccessRequest y health. Esta copia solo conecta login y solicitud de
   acceso.
-- El backend actual permite acceso a artistas y administración; no admite
-  Marketing Staff. La sesión emitida dura seis horas, pero no hay un endpoint
-  de cierre o revocación de sesión.
+- El código de backend disponible en el repositorio no está incluido. Una
+  copia local no verificable permite artistas y administración, pero no
+  Marketing Staff; la sesión firmada dura seis horas y no tiene revocación
+  inmediata. El soporte real para Marketing debe añadirse y desplegarse en la
+  fuente activa de Apps Script.
 - El backend no ofrece operaciones para cuentas y perfiles, marketing,
   notificaciones, soporte, adelantos, historial completo o lectura privada y
   descarga de Drive. Esas funciones siguen pendientes.
-- La pantalla portal-demo.html aún conserva el código heredado y los datos de
-  demostración, pero ahora redirige a un aviso y no ejecuta el panel. No se debe
-  quitar esa protección hasta sustituir las operaciones locales por endpoints
-  autorizados en el servidor.
-- No se ejecutó setup(), no se escribieron datos reales y no se desplegaron
-  cambios. Las pruebas contra el Web App usaron solicitudes deliberadamente
-  inválidas que el backend rechazó.
+- portal-demo.html conserva las pantallas originales, pero sus operaciones que
+  solo usan datos locales no son funciones reales del servicio.
+- No se ejecutó setup(), no se escribieron datos reales ni se desplegaron
+  cambios. No se verificó un login positivo ni los permisos en el backend
+  activo; esta copia no está lista para producción.
 - El portal carga tipografías y bibliotecas externas; requiere internet.
