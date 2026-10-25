@@ -1,0 +1,85 @@
+BERSZ RECORDS — PORTAL CON ACTUALIZACIÓN DE MARKETING
+====================================================
+
+ARCHIVOS
+--------
+index.html ............ Acceso y formulario de solicitud de ingreso.
+portal-demo.html ...... Portal de demostración para administración y artistas.
+brand/ ................ Logos del portal.
+favicon.png ........... Icono de la pestaña.
+
+VISTA LOCAL
+-----------
+Para probar todas las páginas juntas, sirve esta carpeta desde un mismo origen
+web (por ejemplo, localhost) y abre index.html. No uses file://: el navegador no
+garantiza que el formulario de acceso y el portal puedan compartir el estado.
+
+La demo conserva los cambios en el almacenamiento local del navegador. Las
+solicitudes del formulario de ingreso aparecen en «Solicitudes de ingreso»;
+ambas páginas deben abrirse desde el mismo origen y navegador.
+
+CAMBIOS PRINCIPALES
+-------------------
+- Menú administrativo reorganizado por áreas.
+- Gestión unificada de cuentas de artistas, Marketing Staff y Bersz Admin,
+  con filtros por rol y estados de cuenta.
+- Bandeja para revisar solicitudes de ingreso y continuar a la creación de
+  cuenta demo después de aceptar una solicitud.
+- Panel de Marketing Staff con estadísticas, artistas, videos y solicitudes
+  de promoción.
+- Seguimiento de solicitudes de promoción, cancelación confirmada por el
+  artista y papelera con motivo e historial para campañas archivadas.
+- Creación y edición de anuncios manuales en el centro de notificaciones.
+
+ACTUALIZACIÓN 2.8
+-----------------
+- Nuevo estado de lanzamiento «Disponible»: solo lo registra Bersz Admin cuando
+  confirma que el lanzamiento está publicado en las plataformas. No se aplica
+  automáticamente al entregar a distribución.
+- Panel «Dictamen y estado administrativo» rediseñado, con los mismos botones
+  y acciones de antes.
+- Formulario de envío de música con un diseño uniforme en sus tres pasos. Los
+  campos, validaciones, límites y archivos funcionan igual que antes.
+- Retirada de vídeos promocionales: el artista la solicita desde «Mis
+  solicitudes de Promo»; Bonaizznt (Marketing Staff) o Bersz Admin la aprueban
+  o rechazan desde «Solicitudes de Promo» > «Retiradas de vídeo».
+- «Mis solicitudes de Promo» organizadas en secciones desplegables: últimos
+  7 días, mes calendario anterior e historial completo.
+- Nuevo «Soporte» en el menú lateral: feedback, preguntas frecuentes y
+  conversaciones con el equipo. Bersz Admin gestiona el feedback y responde.
+
+ACTUALIZACIÓN 2.9.1 (CORRECCIONES)
+---------------------------------
+- Marketing cuenta bien los vídeos publicados: Inicio, Estadísticas y Artistas
+  incluyen los vídeos de la galería de promociones, cada campaña una sola vez.
+  Los vídeos retirados, archivados o en la papelera no cuentan como activos.
+- Cada cuenta tiene su propio estado de lectura de notificaciones. Que Bersz
+  Admin lea o marque todas como leídas ya no cambia lo que ve el artista o
+  Marketing Staff.
+- «Entregado a distribución» ya no se presenta como publicado. Al pedir una
+  baja, el mensaje depende del estado real: entregado al proveedor o
+  disponible en las plataformas.
+- Si el WAV original no está en este navegador, el panel lo avisa y no
+  reproduce ni descarga un audio de sustitución. Los audios creados con
+  «Generar WAV de prueba real» se identifican como audio de prueba
+  (nombre «..._PRUEBA_SINTETICA.wav») y nunca como máster original.
+
+LÍMITES DE ESTA DEMO
+--------------------
+- Los datos y cambios se guardan en este navegador; no se envían a un servidor
+  ni se sincronizan con otros dispositivos.
+- La solicitud de ingreso no envía correo. La decisión se revisa dentro de la
+  demo y no crea una cuenta real automáticamente.
+- El inicio de sesión con Google todavía requiere integración de autenticación
+  y un backend.
+- Archivar una campaña la quita de la gestión activa del portal; no elimina un
+  video publicado en TikTok.
+- Aprobar una retirada de vídeo lo quita de las promociones activas del portal.
+  El portal no está conectado a TikTok: la retirada en TikTok se hace a mano
+  desde la cuenta que lo publicó.
+- El soporte no es un chat en tiempo real: los mensajes se guardan en este
+  navegador y el equipo responde desde el panel de Bersz Admin.
+- La demo usa datos de ejemplo. Sus roles y permisos no son un control de acceso
+  seguro para un sitio con datos reales.
+- El portal carga tipografías y librerías externas; necesita conexión a
+  internet para su vista completa.
