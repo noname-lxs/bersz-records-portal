@@ -662,6 +662,7 @@
       var GOOGLE_LOGIN_URL = "https://script.google.com/macros/s/AKfycbwEGHijW7D-0BU-n5Qs98fcg84BXvtQaQ_DiYUYbZHS1PrGeD86dImLHwIS48i9tQuisQ/exec";
       var STAGING_PORTAL_URL = GOOGLE_LOGIN_URL + "?view=portal";
             var googleReady = false;
+      var googleTokenClient = null;
       var googleAttemptTimer = null;
 
       /* --- Avisos y acceso con Google Identity Services --- */
@@ -711,8 +712,8 @@
       function startGoogleLogin() {
         if (googleBtn.disabled) return;
         hideNotice();
-        if (!googleReady || !window.google || !google.accounts || !google.accounts.id) {
-          showNotice("error", "Google no está disponible", "Comprueba tu conexión e inténtalo de nuevo.");
+        if (!googleReady || !window.google || !google.accounts || !google.accounts.oauth2 || !googleTokenClient) {
+          showNotice("error", "Google no está disponible", "Recarga la página y vuelve a intentarlo.");
           return;
         }
         googleBtn.disabled = true;
@@ -720,25 +721,17 @@
         googleLabel.textContent = "Esperando a Google…";
         googleAttemptTimer = window.setTimeout(function () {
           resetGoogleButton();
-          showNotice("error", "No se completó el acceso", "Vuelve a pulsar el botón y termina la selección de tu cuenta de Google.");
+          showNotice("error", "No se completó el acceso", "Vuelve a pulsar y termina la selección de tu cuenta de Google.");
         }, 60000);
         try {
-          // El popup de GIS entrega el ID token a handleGoogleCredential; no se persiste en el navegador.
-          google.accounts.id.prompt(function (moment) {
-            if (moment.isNotDisplayed && moment.isNotDisplayed()) {
-              resetGoogleButton();
-              showNotice("error", "No se pudo abrir Google", "El navegador bloqueó el selector de cuenta. Habilita las ventanas emergentes e inténtalo de nuevo.");
-            } else if (moment.isSkippedMoment && moment.isSkippedMoment()) {
-              resetGoogleButton();
-            }
-          });
+          googleTokenClient.requestAccessToken({ prompt: "select_account" });
         } catch (error) {
           resetGoogleButton();
-          showNotice("error", "No se pudo iniciar Google", "Recarga la página e inténtalo de nuevo.");
+          showNotice("error", "No se pudo abrir Google", "Permite las ventanas emergentes para este sitio e inténtalo de nuevo.");
         }
       }
 
-      function extractRole(data) {
+function extractRole(data) {
         var user = data && (data.user || data.profile || data.account);
         return String((user && (user.role || user.rol)) || (data && (data.role || data.rol)) || "").trim().toLowerCase();
       }
@@ -769,8 +762,8 @@
       async function handleGoogleCredential(response) {
         resetGoogleButton();
         hideNotice();
-        if (!response || !response.credential) {
-          showNotice("error", "Google no devolvió una credencial", "Vuelve a intentarlo.");
+        if (!response || response.error || !response.access_token) {
+          showNotice("error", "No se pudo completar el acceso", response && response.error_description ? response.error_description : "Google no devolvió el token de acceso.");
           return;
         }
 
@@ -778,14 +771,12 @@
         googleBtn.setAttribute("aria-busy", "true");
         googleLabel.textContent = "Verificando acceso…";
         try {
-          // text/plain mantiene la petición como CORS simple y Apps Script puede analizar el JSON del cuerpo.
-          // El endpoint valida el ID token y devuelve el rol. Fetch sigue la redirección de ContentService.
           var responseFromBackend = await fetch(GOOGLE_LOGIN_URL, {
             method: "POST",
             mode: "cors",
             redirect: "follow",
             headers: { "Content-Type": "text/plain;charset=UTF-8" },
-            body: JSON.stringify({ action: "login", credential: response.credential })
+            body: JSON.stringify({ action: "login", accessToken: response.access_token })
           });
           if (!responseFromBackend.ok) throw new Error("El servicio de acceso respondió con HTTP " + responseFromBackend.status + ".");
           var result = await responseFromBackend.json();
@@ -796,33 +787,34 @@
           var sessionToken = String(result.token || result.sessionToken || "");
           if (!sessionToken) throw new Error("El servidor no devolvió un token de sesión.");
           await verifyBackendSession(sessionToken);
-          // El ID token se descarta; la sesión se entrega por fragmento al portal STAGING.
           window.location.assign(STAGING_PORTAL_URL + "#session=" + encodeURIComponent(sessionToken));
         } catch (error) {
-          showNotice(
-            "error",
-            "No se pudo completar el acceso",
-            error && error.message ? error.message : "Comprueba tu conexión e inténtalo de nuevo."
-          );
+          showNotice("error", "No se pudo completar el acceso", error && error.message ? error.message : "Comprueba tu conexión e inténtalo de nuevo.");
         } finally {
           resetGoogleButton();
         }
       }
 
-      window.handleGoogleCredential = handleGoogleCredential;
+window.handleGoogleCredential = handleGoogleCredential;
       window.initializeGoogleIdentity = function () {
-        if (!window.google || !google.accounts || !google.accounts.id) return;
-        google.accounts.id.initialize({
+        if (!window.google || !google.accounts || !google.accounts.oauth2) return;
+        googleTokenClient = google.accounts.oauth2.initTokenClient({
           client_id: GOOGLE_CLIENT_ID,
+          scope: "openid email profile",
+          include_granted_scopes: true,
           callback: handleGoogleCredential,
-          ux_mode: "popup",
-          auto_select: false,
-          context: "signin",
-          itp_support: true
+          error_callback: function (error) {
+            resetGoogleButton();
+            var message = error && error.type === "popup_closed"
+              ? "Cerraste la ventana de Google antes de elegir una cuenta."
+              : "Google no pudo abrir el selector. Permite las ventanas emergentes para este sitio e inténtalo de nuevo.";
+            showNotice("error", "No se pudo abrir Google", message);
+          }
         });
         googleReady = true;
       };
-      googleBtn.addEventListener("click", startGoogleLogin);
+
+googleBtn.addEventListener("click", startGoogleLogin);
       var gisScript = document.createElement("script");
       gisScript.src = "https://accounts.google.com/gsi/client";
       gisScript.async = true;
