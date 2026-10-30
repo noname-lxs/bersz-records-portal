@@ -659,6 +659,9 @@
          BERSZ RECORDS — acceso y solicitud de ingreso
          ========================================================== */
       var GOOGLE_CLIENT_ID = "1093619924656-ajhddorlqsc2ahm11bhm26kfn1etgbj1.apps.googleusercontent.com";
+      var STAGING_ORIGIN = "https://portal.berszrecords.top";
+      var STAGING_LOGIN_PAGE = STAGING_ORIGIN + "/staging.html";
+      if (window.location.origin !== STAGING_ORIGIN) window.location.replace(STAGING_LOGIN_PAGE);
       var GOOGLE_LOGIN_URL = "https://script.google.com/macros/s/AKfycbwEGHijW7D-0BU-n5Qs98fcg84BXvtQaQ_DiYUYbZHS1PrGeD86dImLHwIS48i9tQuisQ/exec";
       var STAGING_PORTAL_URL = GOOGLE_LOGIN_URL + "?view=portal";
             var googleReady = false;
@@ -712,6 +715,10 @@
       function startGoogleLogin() {
         if (googleBtn.disabled) return;
         hideNotice();
+        if (window.location.origin !== STAGING_ORIGIN) {
+          window.location.replace(STAGING_LOGIN_PAGE);
+          return;
+        }
         if (!googleReady || !window.google || !google.accounts || !google.accounts.oauth2 || !googleTokenClient) {
           showNotice("error", "Google no está disponible", "Recarga la página y vuelve a intentarlo.");
           return;
@@ -737,15 +744,14 @@ function extractRole(data) {
       }
 
       async function verifyBackendSession(token) {
-        var url = new URL(GOOGLE_LOGIN_URL);
-        url.searchParams.set("action", "me");
-        url.searchParams.set("token", token);
-        var response = await fetch(url.toString(), {
-          method: "GET",
+        var response = await fetch(GOOGLE_LOGIN_URL, {
+          method: "POST",
           mode: "cors",
           redirect: "follow",
           cache: "no-store",
-          referrerPolicy: "no-referrer"
+          referrerPolicy: "no-referrer",
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
+          body: JSON.stringify({ action: "me", token: token })
         });
         if (!response.ok) throw new Error("No se pudo validar la sesión con el servidor.");
         var data = await response.json();
